@@ -1,0 +1,15 @@
+[package]
+name = "simgl"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["angsd-io/libdeflate"]
+
+[dependencies]
+angsd-io = { git = "https://github.com/malthesr/angsd-io.git", rev = "fd30450" }
+atty = "0.2"
+clap = { version = "3.1", features = ["derive"] }
+libc = "0.2"
+rand = "0.8"
+rand_distr = "0.4"

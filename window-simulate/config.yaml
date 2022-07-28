@@ -1,0 +1,15 @@
+# General
+results_dir: results
+
+# Demographic simulation
+ids: [A, B]
+migrations:
+mutation_rate: 2.5e-8
+recombination_rate: 1.0e-8
+chromosomes: 22
+chromosome_length: 10_000_000
+
+# Parameters to expand on in all
+n: [5, 10, 20]
+d: [2, 4, 8]
+e: [2]

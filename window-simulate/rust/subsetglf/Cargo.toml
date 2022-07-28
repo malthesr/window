@@ -1,0 +1,7 @@
+[package]
+name = "subsetglf"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+angsd-io = { git = "https://github.com/malthesr/angsd-io", rev = "62a4695" }

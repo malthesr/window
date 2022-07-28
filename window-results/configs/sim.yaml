@@ -1,0 +1,49 @@
+results_dir: results/sim
+simulation:
+  truth: 
+    A_n5_d2_e2ppt-B_n5_d2_e2ppt: ../window-simulate/results/truth/A-B_n5.sfs
+    A_n5_d4_e2ppt-B_n5_d4_e2ppt: ../window-simulate/results/truth/A-B_n5.sfs
+    A_n5_d8_e2ppt-B_n5_d8_e2ppt: ../window-simulate/results/truth/A-B_n5.sfs
+    A_n10_d2_e2ppt-B_n10_d2_e2ppt: ../window-simulate/results/truth/A-B_n10.sfs
+    A_n10_d4_e2ppt-B_n10_d4_e2ppt: ../window-simulate/results/truth/A-B_n10.sfs
+    A_n10_d8_e2ppt-B_n10_d8_e2ppt: ../window-simulate/results/truth/A-B_n10.sfs
+    A_n20_d2_e2ppt-B_n20_d2_e2ppt: ../window-simulate/results/truth/A-B_n20.sfs
+    A_n20_d4_e2ppt-B_n20_d4_e2ppt: ../window-simulate/results/truth/A-B_n20.sfs
+    A_n20_d8_e2ppt-B_n20_d8_e2ppt: ../window-simulate/results/truth/A-B_n20.sfs
+input:
+  train:
+    A_n5_d2_e2ppt: ../window-simulate/results/saf/A_n5_d2_e2ppt.saf.idx
+    A_n5_d4_e2ppt: ../window-simulate/results/saf/A_n5_d4_e2ppt.saf.idx
+    A_n5_d8_e2ppt: ../window-simulate/results/saf/A_n5_d8_e2ppt.saf.idx
+    A_n10_d2_e2ppt: ../window-simulate/results/saf/A_n10_d2_e2ppt.saf.idx
+    A_n10_d4_e2ppt: ../window-simulate/results/saf/A_n10_d4_e2ppt.saf.idx
+    A_n10_d8_e2ppt: ../window-simulate/results/saf/A_n10_d8_e2ppt.saf.idx
+    A_n20_d2_e2ppt: ../window-simulate/results/saf/A_n20_d2_e2ppt.saf.idx
+    A_n20_d4_e2ppt: ../window-simulate/results/saf/A_n20_d4_e2ppt.saf.idx
+    A_n20_d8_e2ppt: ../window-simulate/results/saf/A_n20_d8_e2ppt.saf.idx
+    B_n5_d2_e2ppt: ../window-simulate/results/saf/B_n5_d2_e2ppt.saf.idx
+    B_n5_d4_e2ppt: ../window-simulate/results/saf/B_n5_d4_e2ppt.saf.idx
+    B_n5_d8_e2ppt: ../window-simulate/results/saf/B_n5_d8_e2ppt.saf.idx
+    B_n10_d2_e2ppt: ../window-simulate/results/saf/B_n10_d2_e2ppt.saf.idx
+    B_n10_d4_e2ppt: ../window-simulate/results/saf/B_n10_d4_e2ppt.saf.idx
+    B_n10_d8_e2ppt: ../window-simulate/results/saf/B_n10_d8_e2ppt.saf.idx
+    B_n20_d2_e2ppt: ../window-simulate/results/saf/B_n20_d2_e2ppt.saf.idx
+    B_n20_d4_e2ppt: ../window-simulate/results/saf/B_n20_d4_e2ppt.saf.idx
+    B_n20_d8_e2ppt: ../window-simulate/results/saf/B_n20_d8_e2ppt.saf.idx
+run: 
+  pops:
+    - A_n5_d2_e2ppt-B_n5_d2_e2ppt  
+    - A_n5_d4_e2ppt-B_n5_d4_e2ppt  
+    - A_n5_d8_e2ppt-B_n5_d8_e2ppt  
+    - A_n10_d2_e2ppt-B_n10_d2_e2ppt  
+    - A_n10_d4_e2ppt-B_n10_d4_e2ppt  
+    - A_n10_d8_e2ppt-B_n10_d8_e2ppt  
+    - A_n20_d2_e2ppt-B_n20_d2_e2ppt  
+    - A_n20_d4_e2ppt-B_n20_d4_e2ppt  
+    - A_n20_d8_e2ppt-B_n20_d8_e2ppt  
+  b: [500]
+  w: [100, 250, 500]
+realsfs:
+  max_epochs: 100
+winsfs:
+  max_epochs: 100

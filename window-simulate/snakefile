@@ -1,0 +1,74 @@
+import itertools as it
+
+from pathlib import Path
+
+configfile: "config.yaml"
+
+IDS = config["ids"]
+PAIRS = ["-".join(pair) for pair in it.combinations(IDS, 2)]
+
+RESULTS_DIR = Path(config["results_dir"])
+
+BASE = "n{n}_d{d}_e{e}ppt"
+ID_BASE = "{id}_" + BASE
+PAIR_BASE = "{pair}_" + BASE
+
+wildcard_constraints:
+    n="[0-9]+(-[0-9]+)*",
+    id=f"({'|'.join(IDS)})",
+    pair=f"({'|'.join(PAIRS)})",
+    maybe="(.*|)",
+    
+    
+
+def get_all_pop_n(wc):
+    """
+    Returns a dict of population ids and population sizes.
+    """
+    return {id: int(wc.n) for id in IDS}
+
+
+def get_total_n(wc):
+    """
+    Returns total population size across populations.
+    """
+    return int(wc.n) * len(IDS)
+
+
+def get_pop_range(wc):
+    """
+    Returns 0-based indices of start and end of the individuals in population
+    corresponding to for current ID out of all. Start is inclusive, end is exclusive.
+    """
+    sizes = get_all_pop_n(wc)
+    i = list(sizes).index(wc.id)
+    start, end = it.islice(it.accumulate(sizes.values(), initial=0), i, i + 2)
+    return (start, end)
+
+
+rule build_rust:
+    """
+    Build Rust binary and move to bin/.
+    """
+    input:
+        src="rust/{name}",
+    output:
+        bin="bin/{name}",
+    shell:
+        """
+        cd {input.src} && \
+            cargo install --path . --quiet --root {workflow.basedir} && \
+            cargo clean
+        """
+
+
+include: "rules/simulate_demography.smk"
+include: "rules/simulate_ngs.smk"
+include: "rules/true_sfs.smk"
+
+
+rule all:
+    """ Phony rule to expand desired output from config """
+    input:
+        expand(rules.create_saf.output.saf_files, id=IDS, **config),
+        expand(rules.true_sfs.output.sfs, pair=PAIRS, **config),

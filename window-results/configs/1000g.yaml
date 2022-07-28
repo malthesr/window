@@ -1,0 +1,19 @@
+results_dir: results/1000g
+input:
+  train:
+    CEU: ../window-input/results/1000g/CEU_train.saf.idx
+    YRI: ../window-input/results/1000g/YRI_train.saf.idx
+  test:
+    CEU: ../window-input/results/1000g/CEU_test.saf.idx
+    YRI: ../window-input/results/1000g/YRI_test.saf.idx
+run: 
+  pops: [YRI, CEU-YRI]
+  b: [500]
+  w: [100, 250, 500]
+realsfs:
+  max_epochs: 500
+winsfs:
+  max_epochs: 500
+winsfs_stream:
+  shuffle_blocks: 100
+  max_epochs: 10

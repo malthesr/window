@@ -1,0 +1,108 @@
+from pathlib import Path
+
+RESULTS_DIR = Path(config["results_dir"])
+POPULATIONS = list(config["bamlists"].keys())
+
+
+rule regions_file:
+    """
+    Create ANGSD regions files from fai by splitting regions 50/50
+    into train/test regions
+    """
+    output:
+        regions_file=RESULTS_DIR / "{split}.regions",
+    params:
+        contigs=config["contigs"],
+        fai=config["fai"],
+    run:
+        contigs = set(open(params["contigs"], "r").read().split("\n"))
+        with open(params["fai"], "r") as fai, open(
+            output.regions_file, "w"
+        ) as regions_file:
+            for entry in fai:
+                contig, length, *_ = entry.split("\t")
+                if contig in contigs:
+                    mid = int(length) // 2
+                    if wildcards.split == "train":
+                        region = f"{contig}:1-{mid}"
+                    elif wildcards.split == "test":
+                        region = f"{contig}:{mid}-{length}"
+                    regions_file.write(f"{region}\n")
+
+
+def get_sites_argument():
+    """
+    Get "-sites" argument for ANGSD if provided in config
+
+    If using sites, these must already have been indexed by 'angsd sites index'
+    """
+    if sites := config["sites"]:
+        return f"-sites {sites}"
+    else:
+        return ""
+
+
+rule saf:
+    """
+    Make SAF files from bamlists, splitting by regions files into train and test
+    """
+    input:
+        regions_file=rules.regions_file.output.regions_file,
+        bamlist=lambda wc: config["bamlists"][wc.population],
+    output:
+        files=multiext(
+            str(RESULTS_DIR / "{population}_{split}"),
+            ".saf.idx",
+            ".saf.pos.gz",
+            ".saf.gz",
+            ".depthSample",
+            ".depthGlobal",
+            ".arg",
+        ),
+    params:
+        anc=config["anc"],
+        fai=config["fai"],
+        bq=30,
+        mq=30,
+        sites_argument=get_sites_argument(),
+        stem=lambda wildcards, output: output.files[0].removesuffix(".saf.idx"),
+    log:
+        RESULTS_DIR / "{population}_{split}.saf.log",
+    threads: 4
+    shell:
+        """
+        angsd \
+            -b {input.bamlist} \
+            -gl 2 \
+            -doSaf 1 \
+            -doDepth 1 \
+            -maxDepth 100 \
+            -doCounts 1 \
+            -anc {params.anc} \
+            -fai {params.fai} \
+            -out {params.stem} \
+            -P {threads} \
+            -rf {input.regions_file} \
+            {params.sites_argument} \
+            -minQ {params.bq} \
+            -minMapQ {params.mq} \
+            > {log} 2>&1
+        """
+
+
+rule tidy_depths:
+    """ Gather depths from .depthSample files into CSV """
+    input:
+        path=RESULTS_DIR / "{population}_{split}.depthSample",
+    output:
+        csv=RESULTS_DIR / "{population}_{split}.depth.csv"
+    script:
+        f"{workflow.basedir}/scripts/tidy_depth.R"
+        
+
+
+rule all:
+    """ Phony rule to run all populations with bamlists in config """
+    input:
+        expand(rules.saf.output.files, population=POPULATIONS, split=["train", "test"]),
+        expand(rules.tidy_depths.output.csv, population=POPULATIONS, split=["train", "test"]),

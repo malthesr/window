@@ -1,0 +1,8 @@
+results_dir: results/1000g
+anc: resources/1000g/1000g.fa.gz
+bamlists: 
+  CEU: resources/1000g/CEU.bamlist
+  YRI: resources/1000g/YRI.bamlist
+fai: resources/1000g/1000g.fa.gz.fai
+contigs: resources/1000g/1000g_contigs.txt
+sites: 

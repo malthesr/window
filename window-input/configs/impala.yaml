@@ -1,0 +1,8 @@
+results_dir: results/impala
+anc: resources/impala/impala.fa.gz
+bamlists: 
+  Shangani: resources/impala/Shangani.bamlist
+  MasaiMara: resources/impala/MasaiMara.bamlist
+fai: resources/impala/impala.fa.gz.fai
+contigs: resources/impala/impala_contigs.txt
+sites: resources/impala/impala_sites.txt

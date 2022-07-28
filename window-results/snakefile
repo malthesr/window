@@ -1,0 +1,41 @@
+import re
+
+from pathlib import Path
+
+RESULTS_DIR = Path(config["results_dir"])
+REALSFS_DIR = RESULTS_DIR / "realsfs"
+WINSFS_DIR = RESULTS_DIR / "winsfs"
+WINSFS_STREAM_DIR = WINSFS_DIR / "stream"
+BENCH_DIR = RESULTS_DIR / "bench"
+
+POPS = list(config["input"]["train"].keys())
+
+POP_CONSTRAINT = "|".join(POPS)
+POP_SEP = "-"
+POP_PATTERN = f"({POP_CONSTRAINT})({POP_SEP}({POP_CONSTRAINT}))*"
+
+SPLITS = ["train", "test"]
+
+
+wildcard_constraints:
+    pops=POP_PATTERN,
+    b="[0-9]+",
+    w="[0-9]+",
+    split=f"({'|'.join(SPLITS)})",
+    maybe="(|.*)",
+
+
+include: "helpers.smk"
+include: "rules/sfs.smk"
+include: "rules/log_likelihood.smk"
+
+if "winsfs_stream" in config:
+    include: "rules/benchmark.smk"
+
+
+rule all:
+    """ Phony rule to create all results """
+    input:
+        rules.all_sfs.input,
+        rules.all_log_likelihood.input,
+        rules.all_block_log_likelihood.input,
