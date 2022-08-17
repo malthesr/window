@@ -1,0 +1,103 @@
+inputsfs:
+ shangani_masaimara_realsfs: /home/malthe/projects/window-results/results/impala/realsfs/iterations/Shangani-MasaiMara.after100.sfs
+ shangani_masaimara_winsfs_1it: /home/malthe/projects/window-results/results/impala/winsfs/iterations/Shangani-MasaiMara_b500_w100.after0.sfs
+ shangani_masaimara_winsfs_2it: /home/malthe/projects/window-results/results/impala/winsfs/iterations/Shangani-MasaiMara_b500_w100.after1.sfs
+pairs:
+ shangani_masaimara_realsfs:
+  - Shangani
+  - MasaiMara
+ shangani_masaimara_winsfs_1it:
+  - Shangani
+  - MasaiMara
+ shangani_masaimara_winsfs_2it:
+  - Shangani
+  - MasaiMara
+models:
+ NOMIG:
+  funcname: no_mig
+  model_params:
+   - N1
+   - N2
+   - T
+  upper_bound:
+   - 10
+   - 10
+   - 30
+  lower_bound:
+   - 1e-2
+   - 1e-2
+   - 1e-6
+ IM:
+  funcname: sym_mig
+  model_params:
+   - N1
+   - N2
+   - m
+   - T
+  upper_bound:
+   - 10
+   - 10
+   - 5
+   - 30
+  lower_bound:
+   - 1e-2
+   - 1e-2
+   - 0
+   - 1e-6
+ IM_ASYM:
+  funcname: asym_mig
+  model_params:
+   - N1
+   - N2
+   - m12
+   - m21
+   - T
+  upper_bound:
+   - 10
+   - 10
+   - 5
+   - 5
+   - 30
+  lower_bound:
+   - 1e-2
+   - 1e-2
+   - 0
+   - 0
+   - 1e-6
+ IM_ASYM_SIZE:
+  funcname: asym_mig_size
+  model_params:
+   - N1A
+   - N2A
+   - N1B
+   - N2B
+   - M12
+   - M21
+   - T1
+   - T2
+  upper_bound:
+   - 10
+   - 10
+   - 10
+   - 10
+   - 5
+   - 5
+   - 30
+   - 10
+  lower_bound:
+   - 1e-2
+   - 1e-2
+   - 1e-2
+   - 1e-2
+   - 0
+   - 0
+   - 1e-6
+   - 1e-6
+popn:
+ Shangani: 8
+ MasaiMara: 12
+outmain: results
+nruns: 100
+maxn: 101
+mu: 1.41e-08
+g: 5.7

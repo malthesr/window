@@ -1,0 +1,13 @@
+# Pipeline to run dadi
+
+Runs multiple population pairs / sfs versions, specified in config, and multiple model for each also specified in config file, together with search ranges for each parameter.
+
+We used dadi models defined in https://github.com/dportik/dadi_pipeline; you can copy the scripts by
+
+``` 
+mkdir -p scripts
+wget -O  scripts/dadi_models.py https://raw.githubusercontent.com/dportik/dadi_pipeline/master/Two_Population_Pipeline/Models_2D.py
+```
+
+(It should also be possible to run the pipeline using your own models, just place them in `scripts/dadi_models.py`, or change the name sourced in the snakefile)
+
