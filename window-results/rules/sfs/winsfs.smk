@@ -9,7 +9,7 @@ rule install_winsfs:
         winsfs="bin/winsfs",
     params:
         winsfs_git="https://github.com/malthesr/winsfs",
-        rev="13c4dcd",
+        rev="a7d4857",
         root=workflow.basedir,
     threads: 8
     shell:
@@ -53,6 +53,7 @@ rule nth_winsfs:
     appropriate epoch SFS to feed into e.g. log-likelihood calculations.
     """
     input:
+        sfs=rules.winsfs.output.sfs,
         log=rules.winsfs.log,
     output:
         sfs=WINSFS_DIR / "iterations" / "{pops}_b{b}_w{w}.after{n}.sfs",

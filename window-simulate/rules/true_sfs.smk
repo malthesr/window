@@ -47,7 +47,7 @@ rule vcf_to_counts:
 def get_counts(wc):
     """Helper to get plain counts for 2d SFS creation"""
     fst, snd = wc.pair.split("-")
-    counts = expand(rules.vcf_to_counts.output.counts, id=[fst, snd], **wc)
+    counts = expand(TRUTH_DIR / "{id}_n{n}{peak}.counts.txt", id=[fst, snd], **wc)
     return counts
 
 
@@ -58,7 +58,7 @@ rule true_sfs:
     input:
         counts=get_counts,
     output:
-        sfs=TRUTH_DIR / "{pair}_n{n}.sfs",
+        sfs=TRUTH_DIR / "{pair}_n{n}{peak}.sfs",
     params:
         n=lambda wc: int(wc.n),
         sites_considered=config["chromosomes"] * config["chromosome_length"],

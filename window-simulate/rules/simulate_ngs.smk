@@ -39,9 +39,9 @@ rule split_glf:
     """
     input:
         subsetglf="bin/subsetglf",
-        glf=rules.simulate_gl.output.glf,
+        glf=GLF_DIR / (str(BASE) + "{peak}.glf.gz"),
     output:
-        glf=temp(GLF_DIR / f"{ID_BASE}.glf.gz"),
+        glf=temp(GLF_DIR / (str(ID_BASE) + "{peak}.glf.gz")),
     params:
         subset=lambda wc: ",".join([str(n) for n in range(*get_pop_range(wc))]),
         total_n=lambda wc: get_total_n(wc),
@@ -100,14 +100,14 @@ rule create_saf:
         fai=rules.index_reference.output.fai,
     output:
         saf_files=multiext(
-            str(SAF_DIR / ID_BASE),
+            str(SAF_DIR / (str(ID_BASE) + "{peak}")),
             ".saf.idx",
             ".saf.pos.gz",
             ".saf.gz",
             ".arg",
         ),
     log:
-        SAF_DIR / f"{ID_BASE}.log",
+        SAF_DIR / (ID_BASE + "{peak}.log"),
     params:
         prefix=lambda wc, output: output.saf_files[0].removesuffix(".saf.idx"),
     shell:

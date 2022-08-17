@@ -16,11 +16,12 @@ stat_paths <- paths |> subset_paths("\\.stat\\.csv$")
 loglik_paths <- paths |> subset_paths("\\.loglik\\.csv$")
 block_loglik_paths <- paths |> subset_paths("\\.block_loglik\\.csv$")
 
-re <- "^A_n([0-9]+)_d([0-9]+)_e[0-9]+ppt-B_n[0-9]+_d[0-9]+_e[0-9]+.*"
+re <- "^A(_peak)?_n([0-9]+)_d([0-9]+)_e[0-9]+ppt-B(_peak)?_n[0-9]+_d[0-9]+_e[0-9]+.*"
 read <- \(p, fmt) lapply(p, read_csv, col_types = fmt) |> 
     setNames(get_names(p)) |>
     bind_rows(.id = "name") |>
-    extract(name, into = c("n", "d"), regex = re, convert = TRUE)
+    extract(name, into = c("peak", "n", "d", NA), regex = re, convert = TRUE) |>
+    mutate(peak = peak == "_peak")
 dedup_truth <- \(df) df |> 
     filter(condition == "truth") |> 
     mutate(d = NA, epoch = NA) |> 
@@ -31,7 +32,8 @@ write <- \(df, p) write_csv(df, p)
 
 sfs_df <- sfs_paths |> 
     read(fmt = "ciiid") |>
-    dedup_truth()
+    dedup_truth() |>
+    filter(condition %in% c("realsfs", "truth") | epoch < 20) # reduce csv size
 write(sfs_df, "data/sim.sfs.csv")
 
 stat_df <- stat_paths |> 

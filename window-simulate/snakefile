@@ -17,6 +17,7 @@ wildcard_constraints:
     n="[0-9]+(-[0-9]+)*",
     id=f"({'|'.join(IDS)})",
     pair=f"({'|'.join(PAIRS)})",
+    peak=r"(\.peak|)",
     maybe="(.*|)",
     
     
@@ -65,10 +66,12 @@ rule build_rust:
 include: "rules/simulate_demography.smk"
 include: "rules/simulate_ngs.smk"
 include: "rules/true_sfs.smk"
+include: "rules/simulate_peak.smk"
 
 
 rule all:
     """ Phony rule to expand desired output from config """
     input:
-        expand(rules.create_saf.output.saf_files, id=IDS, **config),
-        expand(rules.true_sfs.output.sfs, pair=PAIRS, **config),
+        expand(rules.create_saf.output.saf_files, id=IDS, peak="", **config),
+        expand(rules.true_sfs.output.sfs, pair=PAIRS, peak="", **config),
+        expand(rules.true_sfs.output.sfs, pair=PAIRS, peak=".peak", n=20, d=config["d"], e=config["e"]),

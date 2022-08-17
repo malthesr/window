@@ -10,6 +10,9 @@ simulation:
     A_n20_d2_e2ppt-B_n20_d2_e2ppt: ../window-simulate/results/truth/A-B_n20.sfs
     A_n20_d4_e2ppt-B_n20_d4_e2ppt: ../window-simulate/results/truth/A-B_n20.sfs
     A_n20_d8_e2ppt-B_n20_d8_e2ppt: ../window-simulate/results/truth/A-B_n20.sfs
+    A_peak_n20_d2_e2ppt-B_peak_n20_d2_e2ppt: ../window-simulate/results/truth/A-B_n20.peak.sfs
+    A_peak_n20_d4_e2ppt-B_peak_n20_d4_e2ppt: ../window-simulate/results/truth/A-B_n20.peak.sfs
+    A_peak_n20_d8_e2ppt-B_peak_n20_d8_e2ppt: ../window-simulate/results/truth/A-B_n20.peak.sfs
 input:
   train:
     A_n5_d2_e2ppt: ../window-simulate/results/saf/A_n5_d2_e2ppt.saf.idx
@@ -30,6 +33,12 @@ input:
     B_n20_d2_e2ppt: ../window-simulate/results/saf/B_n20_d2_e2ppt.saf.idx
     B_n20_d4_e2ppt: ../window-simulate/results/saf/B_n20_d4_e2ppt.saf.idx
     B_n20_d8_e2ppt: ../window-simulate/results/saf/B_n20_d8_e2ppt.saf.idx
+    A_peak_n20_d2_e2ppt: ../window-simulate/results/saf/A_n20_d2_e2ppt.peak.saf.idx
+    A_peak_n20_d4_e2ppt: ../window-simulate/results/saf/A_n20_d4_e2ppt.peak.saf.idx
+    A_peak_n20_d8_e2ppt: ../window-simulate/results/saf/A_n20_d8_e2ppt.peak.saf.idx
+    B_peak_n20_d2_e2ppt: ../window-simulate/results/saf/B_n20_d2_e2ppt.peak.saf.idx
+    B_peak_n20_d4_e2ppt: ../window-simulate/results/saf/B_n20_d4_e2ppt.peak.saf.idx
+    B_peak_n20_d8_e2ppt: ../window-simulate/results/saf/B_n20_d8_e2ppt.peak.saf.idx
 run: 
   pops:
     - A_n5_d2_e2ppt-B_n5_d2_e2ppt  
@@ -41,6 +50,9 @@ run:
     - A_n20_d2_e2ppt-B_n20_d2_e2ppt  
     - A_n20_d4_e2ppt-B_n20_d4_e2ppt  
     - A_n20_d8_e2ppt-B_n20_d8_e2ppt  
+    - A_peak_n20_d2_e2ppt-B_peak_n20_d2_e2ppt
+    - A_peak_n20_d4_e2ppt-B_peak_n20_d4_e2ppt
+    - A_peak_n20_d8_e2ppt-B_peak_n20_d8_e2ppt
   b: [500]
   w: [100, 250, 500]
 realsfs:
