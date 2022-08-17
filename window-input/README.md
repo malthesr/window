@@ -6,11 +6,11 @@ This project contains a small snakemake pipeline for taking BAM files to SAF fil
 
 ### Human 1000g data
 
-For the human data, the BAMs are available through the 1000G projects [here](https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/). We used IDs `NA12341`, `NA07357`, `NA11933`, `NA12760`, `NA12872`, `NA12546`, `NA12827`, `NA12275`, `NA12829`, `NA07056` for CEU and `NA18877`, `NA19095`, `NA19160`, `NA18923`, `NA19130`, `NA19114`, `NA19200`, `NA19138`, `NA18864`, `NA18915` for YRI.
+For the human data, the BAMs are available through the 1000G projects [here][1000gftp]. We used IDs `NA12341`, `NA07357`, `NA11933`, `NA12760`, `NA12872`, `NA12546`, `NA12827`, `NA12275`, `NA12829`, `NA07056` for CEU and `NA18877`, `NA19095`, `NA19160`, `NA18923`, `NA19130`, `NA19114`, `NA19200`, `NA19138`, `NA18864`, `NA18915` for YRI.
 
 ## Impala
 
-For the impala data, the FASTQs are available via the SRA with accession `PRJNA862915`. Sample names `1508`, `1509`, `1510`, `1511`, `1514`, `1515`, `1516`, and `1517` are included in the Shangani population in the manuscript, while sample names `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `8716`, and `4009` belong to Maasai Mara. The FASTQs were cleaned and aligned by Genis, who also prepared the filters used here. Code for these steps can be found [TODO: add link].
+For the impala data, the FASTQs are available via the SRA with accession `PRJNA862915`. Sample names `1508`, `1509`, `1510`, `1511`, `1514`, `1515`, `1516`, and `1517` are included in the Shangani population in the manuscript, while sample names `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `8716`, and `4009` belong to Maasai Mara. The FASTQs were cleaned and aligned by Genis, who also prepared the filters used here. Code for these steps can be found [here][impalascripts].
 
 ## Running
 
@@ -25,3 +25,6 @@ fish run.fish $threads
 If you do not have fish, copying out the commands to your preferred shell should be straightforward.
 
 By default, results will appear in the `results/` directory, where they can be used for input to the `window-results` workflow.
+
+[1000gftp]: https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/
+[impalascripts]: https://github.com/GenisGE/impalascripts
