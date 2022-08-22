@@ -1,0 +1,115 @@
+\section{SFS EM algorithm}\label{text:sfsem}
+
+\paragraph{General EM}
+
+We begin by giving the general proof of convergence for the EM algorithm \cite{Dempster1977} in the discrete case to establish notation.
+
+For observed data $\data$ consisting of $M$ independent data points $\data[m]$, and discrete latent data $\ct[m] \in J$, we write the log-likelihood for parameter $\sfs$,
+%
+\begin{align}
+    L(\sfs) 
+    &= \log \prob(\data \given \sfs) \nonumber \\
+    &= \sum_{m = 1}^M \log \prob(\data[m] \given \sfs) \nonumber \\
+    &= \sum_{m = 1}^M \log \sum_{j \in J} \prob(\data[m], \ct[m] = j \given \sfs) \, .
+\end{align}
+%
+For an arbitrary distribution $q_m$ with support $\ctset$, by Jensen's inequality
+%
+\begin{align}
+    L(\sfs) 
+    &= \sum_{m = 1}^M \log \sum_{j \in J} q_m(j) \frac{\prob(\data[m], \ct[m] = j \given \sfs)}{q_m(j)} \nonumber \\
+    &\geq \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \frac{\prob(\data[m], \ct[m] = j \given \sfs)}{q_m(j)} \nonumber \\
+    &= \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \prob(\data[m] \given \sfs)  \nonumber \\
+    &\qquad + \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \frac{\prob(\ct[m] = j \given \data[m], \sfs)}{q_m(j)} \nonumber \\
+    &= L(\sfs) - \sum_{m = 1}^M \kldiv{q_m(j)}{\prob(\ct[m] = j \given \data_i, \sfs)} \, ,
+\end{align}
+%
+where $\kldiv{P}{Q}$ is the KL divergence of $P$ and $Q$, so that
+%
+\begin{align}
+    q_m(j) &= \prob(\ct[m] = j \given \data_i, \sfs) \\
+    %
+    \intertext{implies}
+    %
+    L(\sfs) &= \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \frac{\prob(\data[m], \ct[m] = j \given \sfs)}{q_m(j)}  \, ,
+\end{align}
+%
+since $P = Q \Rightarrow \kldiv{P}{Q} = 0$.
+Therefore, from an arbitrary parameter guess $\estsfs[t]$, setting $q_m(j) = \prob(\ct[m] = j \given \data_i, \estsfs[t])$ (the \enquote{E-step}) and finding
+%
+\begin{align}
+    \estsfs[t + 1] 
+    &= \argmax_\sfs \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \frac{\prob(\data[m], \ct[m] = j \given \sfs)}{q_m(j)} \nonumber \\
+    &= \argmax_\sfs \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \prob(\data[m], \ct[m] = j \given \sfs) \, ,
+\end{align}
+%
+(the \enquote{M-step}) guarantees $L(\estsfs[t + 1]) \geq L(\estsfs[t])$, since
+%
+\begin{align}
+    L(\estsfs[t + 1])
+    &\geq \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \frac{\prob(\data[m], \ct[m] = j \given \estsfs[t + 1])}{q_m(j)} \nonumber \\
+    &\geq \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \frac{\prob(\data[m], \ct[m] = j \given \estsfs[t])}{q_m(j)} \nonumber \\
+    &= L(\estsfs[t]) \, . 
+\end{align}
+
+\paragraph{General EM under special conditions}
+
+We now consider the special case when the following conditions hold:
+%
+\begin{align}
+    \prob(\ct[m] = j \given \sfs) &= \sfs_j \label{eq:latentisparameter} \, , \\
+    \sum_{j \in J} \sfs_j &= 1 \label{eq:parametersumstoone} \, , \\
+    \prob(\data[m] \given \ct[m] = j, \sfs) &= \prob(\data[m] \given \ct[m] = j) \label{eq:conditionalindependenceofparameter} \, .
+\end{align}
+%
+This simplifies the M-step,
+%
+\begin{align}
+    \hat{\sfs}^{(n + 1)} 
+    &= \argmax_\sfs \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \prob(\data[m], \ct[m] = j \given \sfs) \nonumber \\
+    &= \argmax_\sfs \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \prob(\data[m] \given \ct[m] = j) \sfs_j \nonumber \\
+    &= \argmax_\sfs \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \sfs_j \, ,
+\end{align}
+%
+so that the maximising parameter can be found using constrained optimisation. Using Lagrange multipliers, for example,
+%
+\begin{equation}
+    \frac{\partial}{\partial \sfs_j} \sum_{m = 1}^M \sum_{j \in J} q_m(j) \log \sfs_j + \beta \left( \sum_{j \in J} \sfs_j - 1 \right)
+    = \frac{\sum_{m = 1}^M q_m(j)}{\sfs_j} + \beta
+\end{equation}
+%
+and
+%
+\begin{alignat}{2}\label{eq:generalmstep}
+    &\qquad& 
+    0 &= \frac{\sum_{m = 1}^M q_m(j)}{\sfs_j} + \beta \nonumber \\
+    \iff && \sfs_j &= \frac{\sum_{m = 1}^M q_m(j)}{-\beta} \nonumber \\
+         && &= \frac{\sum_{m = 1}^M q_m(j)}{\sum_{m = 1}^M \sum_{j' \in J} q_m(j')} \, , 
+\end{alignat}
+%
+where the value of $\beta$ is fixed by the constraint that $\sfs$s sum to $1$.
+
+Finally, we note that under these special conditions, we can rewrite the E-step using Bayes' theorem,
+%
+\begin{align}\label{eq:generalestep}
+    q_m(j)
+    &= \prob(\ct[m] = j \given \data[m], \estsfs[t]) \nonumber \\
+    &= \frac{
+        \prob(\data[m] \given \ct[m] = j, \estsfs[t]) \prob(\ct[m] = j \given \estsfs[t])
+    }{
+        \sum_{j' \in \ctset} \prob(\data[m] \given \ct[m] = j', \estsfs[t]) \prob(\ct[m] = j' \given \estsfs[t])
+    } \nonumber \\
+    &= \frac{
+        \prob(\data[m] \given \ct[m] = j) \estsfs[t]_j
+    }{
+        \sum_{j' \in \ctset} \prob(\data[m] \given \ct[m] = j') \estsfs[t]_{j'}
+    } \, .
+\end{align}
+
+\paragraph{Multidimensional SFS EM}
+
+We now consider the case when the parameter $\sfs$ is the (multidimensional) SFS and the latent $\ct[m]$ is the derived allele count, and simply note that the conditions in \cref{eq:latentisparameter,eq:parametersumstoone,eq:conditionalindependenceofparameter} are fulfilled in this case:
+the probability $\prob(\ct_m = j \given \sfs) = \sfs_j$ and $\sum_{j \in \ctset} \sfs_j = 1$ by definition of the SFS, and $\prob(\data[m] \given \ct_m, \sfs) = \prob(\data[m] \given \ct_m)$ by conditional independence of the sequencing data and the SFS given a derived allele count.
+Therefore, \cref{eq:generalestep} and \cref{eq:generalmstep} recover the E step and M step from the main text.
+
+\printbibliography

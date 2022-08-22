@@ -1,0 +1,364 @@
+\section{Methods}
+
+Estimation of the SFS from low-coverage sequencing data requires pre-computing site allele frequency likelihoods for each site, and these are based on genotype likelihoods. 
+We begin by briefly reviewing these concepts.
+
+\paragraph{Genotype likelihoods}
+
+Assume we have NGS data $\data$ sampled from $K$ different populations (indexed by $k$), with $N_k$ individuals in the $k$th population.
+Further, say that we have $M$ diallelic sites (indexed by $m$), so that $\gt[mkn] \in \set{0, 1, 2}$ is the genotype of a diploid individual $n$ at site $m$ in population $k$, coding genotypes as the number of derived alleles.
+In the same way, we use $\data[mkn]$ to refer to the sequencing data at this location.
+
+We define the genotype likelihood $\prob(\data[mkn] \given \gt[mkn])$ as the probability of the data given a particular genotype.
+Genotype likelihoods form the basis of genotype calling and are calculated from aligned sequencing reads by various bioinformatic tools including \texttt{bcftools}/\texttt{samtools} \cite{Li2009, Danecek2021}, \texttt{GATK} \cite{McKenna2010}, and \angsd \cite{Korneliussen2014}, using slightly different models.
+For clarity, we outline the basic \texttt{GATK} model below, though the choice of model is not important for our purposes.
+
+For $D$ sequencing reads aligned to position $m$ for individual $n$ in population $k$, let $b_d$ be the base call of the $d$th read. Assuming independence of base calls, we have
+%
+\begin{equation}\label{eq:gl1}
+    \prob(\data[mkn] \given \gt[mkn] = g)
+	= \prod_{d = 1}^D 
+        \prob(b_d \given \gt[mkn] = g)
+    \, .
+\end{equation}
+%
+If we consider the genotype as two alleles $a_1, a_2 \in \set{0, 1}$ such that $\gt[mkn] = a_1 + a_2$, then by random sampling of the parental alleles,
+%
+\begin{equation}\label{eq:gl2}
+    \prob(b_d \given \gt[mkn] = g)
+	= \frac{1}{2} 
+        \prob(b_d \given a_1) + 
+        \frac{1}{2} \prob(b_d \given a_2) 
+    \, .
+\end{equation}
+%
+In turn, this probability is modelled by
+%
+\begin{equation}\label{eq:gl3}
+    \prob(b_d \given a) =
+    %
+    \begin{cases}
+        \epsilon_d / 3 & \text{if $b_d \neq a$} \\
+        1 - \epsilon_d  & \text{else}
+    \end{cases}
+    \, ,
+\end{equation}
+%
+where $\epsilon_d$ is the sequencing error probability associated with the $d$th base.
+
+\paragraph{Site allele frequency likelihoods}
+
+Using genotype likelihoods, we can calculate site allele frequency (SAF) likelihoods, also sometimes known as sample allele frequency likelihoods.
+It is possible to think of the SAF likelihoods as the generalisation of genotype likelihoods from individuals to populations:
+instead of asking about the probability of the data for one individual given a genotype, we ask about the probability of the data for a population given the sum of their derived alleles.
+
+More formally, define the sum of derived alleles for population $k$ at site $m$,
+%
+\begin{equation}
+    \ct[mk] = \sum_{n = 1}^{N_k} \gt[mkn] 
+    \, ,
+\end{equation}
+%
+with $\ct[mk] \in \set{0, 1, \dots, 2N_k}$ each corresponding to possible sample frequencies $\set{0, 1/2N_k, \dots, 1}$. Now define the SAF likelihood for a single population $k$,
+%
+\begin{equation}\label{eq:saf}
+    \prob(\data[mk] \given \ct[mk] = j_k)
+	= \sum_{\mathclap{g \in \set{0, 1, 2}^{N_k}}}
+		\prob(g \given \ct[mk] = j_k) 
+		\prod_{n = 1}^{N_k} 
+			\prob(\data[mkn] \given \gt[mkn] = g_n)
+    \, ,
+\end{equation}
+%
+where $\data[mk]$ is the data for all individuals sampled in population $k$ at site $m$, $\prob(g \given \ct[mk] = j_k)$ is the combinatorial probability of the genotype vector $g = \oset{g_1, \dots, g_{N_k}}$ conditional on the sum of the genotypes being $j_k$, and $\prob(\data[mkn] \given \gt[mkn] = g_n)$ is a standard genotype likelihood.
+Using a dynamic programming algorithm, SAF likelihoods can be calculated from the genotype likelihoods of $N$ individuals in $O(N^2)$ time per site \cite{Nielsen2012}, and a linear time approximation has also been given \cite{Han2014}.
+
+To extend this to the multi-dimensional SFS with $K$ populations, let $\ctset = \times_{k = 1}^K \set{ 0, 1, \dots, 2N_{k} }$ be the set of possible derived allele count combinations across populations, let $\data_m$ be the data across all individuals in all populations at site $m$, and define $\ct[m] = \oset{\ct[m1], \dots, \ct[mK] } \in \ctset$. Then
+%
+\begin{equation}\label{eq:jointsaf}
+    \prob(\data[m] \given \ct[m])
+	= \prod_{k = 1}^K \prob(\data[mk] \given \ct[mk])
+    \, ,
+\end{equation}
+%
+is the joint SAF likelihood for $K$ populations.
+
+\paragraph{Site frequency spectrum}
+
+Using the definition of $\ctset$ above, we define the SFS as a parameter $\sfs = \set{\sfs_j : j \in \ctset}$ such that $\sfs_j$ is the probability that $Z_m = j$.
+That is,
+%
+\begin{equation}
+    \sfs_j = \prob(\ct[m] = j \given \sfs)
+    \, ,
+\end{equation}
+%
+for site $m$. That is, the SFS is the probability of a particular vector of derived allele sums at a site chosen at random.
+
+When genotypes are available, the SFS can be estimated simply by counting observed allele count combinations.
+When genotypes cannot be called, the standard approach is maximum-likelihood estimation.
+
+Assuming independence of sites, we write the likelihood function
+%
+\begin{align}\label{eq:likelihood}
+    \prob(X \given \sfs)
+    &= \prod_{m = 1}^M 
+        \prob(\data[m] \given \sfs) \nonumber \\
+    &= \prod_{m = 1}^M \sum_{j \in \ctset}
+        \prob(\data[m] \given \sfs, \ct[m] = j) \prob(\ct[m]  = j \given \sfs) \nonumber \\
+    &= \prod_{m = 1}^M \sum_{j \in \ctset} 
+        \prob(\data[m] \given \ct[m] = j) \sfs_j 
+    \, ,
+\end{align}
+%
+where $\data[m]$ refers to all sequencing data for site $m$. Note that the likelihood can be expressed solely in terms of joint SAF likelihoods.
+
+The maximum likelihood estimate $\estsfs = \argmax_{\sfs} \prob(\data \given \sfs)$ cannot be found analytically.
+Instead, $\estsfs$ is typically estimated using some iterative procedure such as BFGS \cite{Nielsen2012} or an EM algorithm \cite{Li2011, Korneliussen2014}), of which the latter has become the standard choice.
+An overview of the this algorithm is given below.
+For details and proof, see \cref{sup-text:sfsem}.
+
+\paragraph{Standard EM algorithm}
+
+Before optimization, we pre-compute the SAF likelihoods for all sites, populations, and possible sample frequencies.
+In addition, we make an arbitrary initial guess of the SFS $\estsfs[0]$.
+The EM algorithm then alternates between an E-step, and an M-step.
+
+The E-step consists of computing posterior probabilities of derived allele counts conditional on the current SFS estimate,
+%
+\begin{align}\label{eq:estep}
+    \post[t]_{mj}
+    &=
+    \prob(\ct[m] = j \given \data[m], \estsfs[t]_j) \nonumber \\
+    &= 
+    \frac{
+        \prob(\data[m] \given \ct[m] = j) \estsfs[t]_j
+    }{
+        \sum_{j' \in \ctset} \prob(\data[m] \given \ct[m] = j') \estsfs[t]_{j'}
+    }
+    \, ,
+\end{align}
+%
+for all sites $m \in \set{1, \dots, M}$ and possible derived allele counts $j \in \ctset$.
+Note that this conditional posterior depends only on the current SFS estimate and the (joint) SAF likelihoods.
+
+Using the result of the E-step, the M-step updates the estimate by setting
+%
+\begin{align}\label{eq:mstep}
+    \estsfs[t + 1]_j 
+    &= 
+    \frac{ 
+        \sum_{m = 1}^{M} \post[t]_{mj}
+    }{
+        \sum_{m = 1}^{M} \sum_{j' \in \ctset} \post[t]_{mj'}
+    } \nonumber \\
+    &= 
+    \frac{1}{M} \sum_{m = 1}^{M} \post[t]_{mj}
+    \, ,
+\end{align}
+%
+for all $j \in \ctset$. 
+
+The EM algorithm guarantees a monotonically increasing likelihood of successive values of $\estsfs[t]$.
+The runtime of the algorithm is linear in the number of iterations required before convergence, with each iteration taking $O(M\prod_{k = 1}^K N_k)$ time.
+In practice, the standard implementation is \realsfs \cite{Nielsen2012} from the software suite \angsd \cite{Korneliussen2014} which uses a generic EM acceleration scheme \cite{Varadhan2008}.
+The details of this acceleration will not be important in this context, so we omit the details.
+
+\paragraph{Window EM algorithm}
+
+\begin{figure}
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/window}
+    }
+    \end{center}
+    \caption{
+        Schematic illustration of the standard and window EM algorithms for input consisting of a single population with $N = 3$ individuals and $M = 50$ sites.
+        Sites are shown horizontally, derived allele frequencies are shown vertically.
+        The pre-computed SAF likelihoods are illustrated at the bottom with blocks indicated by dashed lines.
+        Standard EM computes the conditional posterior derived allele counts over all sites (E-step) and uses these to update the SFS estimate (M-step).
+        Window EM computes the conditional posteriors for a small blocks of sites (E-step), computes a block SFS estimate after each block (M1-step), and updates the overall estimates as sliding window average (M2-step) of the $\windows$ past block estimates.
+        In this example, the sites have been split into $\blocks = 5$ blocks with $10$ sites each, and the sliding window covers $W = 3$ blocks.
+    }
+    \label{fig:window}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+\makebox[0.8\textwidth]{
+\begin{minipage}{0.8\paperwidth}
+\begin{algorithm}[H]
+    \Input{
+        \begin{enumerate*}[label={(\arabic*)}]
+            \item SAF likelihoods $\prob(\data_{mk} \given \ct_{mk} = j_k)$ for sites $m \in \set{1, \dots, M}$ and $N_k$ individuals in each of populations $k \in \set{1, \dots, K}$, with $j \in \ctset =\times_{k = 1}^K \set{ 0, 1, \dots, 2N_{k} }$.
+            \item Random, non-overlapping assignment of sites indices from $1$ to $M$ into $\blocks$ blocks $\oset{\blockset[1], \dots, \blockset[\blocks]}$.
+            \item Initial SFS estimate $\estsfs[0]$.
+        \end{enumerate*}
+    }
+    \Output{
+        Estimate $\estsfs$ of the $K$-dimensional SFS.
+    }
+    \Parameters{
+        Number of blocks $\blocks$, number of blocks per window $\windows$.
+    }
+    %
+    \vspace{1mm} \hrule \vspace{1mm}
+    %
+    $t \gets 0$\;
+    %
+    \While () {\upshape not converged } {
+        \begin{math}
+            b_t
+            \gets
+            t \bmod \blocks + 1
+        \end{math}
+        \tcp*[r]{Block index}
+        %
+        \For { $m \in \blockset[b_t]$ } {
+            \For { $j \in \ctset$ } {
+                \begin{math}
+                    \displaystyle
+                    \post[t]_{mj}
+                    \gets
+                    \frac{
+                        \prob(\data[m] \given \ct[m] = j) \estsfs[t]_j
+                    }{
+                        \sum_{j' \in \ctset} \prob(\data[m] \given \ct[m] = j') \estsfs[t]_{j'}
+                    }
+                \end{math}
+                \tcp*[r]{E-step}
+            }
+        }
+        %
+        \begin{math}
+            \windowset[t]
+            \gets
+            \set{
+                (t - w) \bmod \blocks + 1
+                \mid 
+                w \in \set{0, \dots, \min(t, \windows - 1)}
+            }
+        \end{math}
+        \tcp*[r]{Window indices}
+        %
+        \For { $j \in \ctset$ } {
+            \begin{math}
+                \displaystyle
+                \bsfs[t + 1]_j
+                \gets
+                \frac{1}{\size{\blockset[b_t]}} 
+                \smashoperator[r]{\sum_{m \in \blockset[b_t]}}
+                    \post[t]_{mj}
+            \end{math}
+            \tcp*[r]{M1-step}
+            %
+            \begin{math}
+                \displaystyle
+                \estsfs[t + 1]_j
+                \gets
+                \frac{1}{
+                    \sum_{w \in \windowset[t]}
+                        \size{\blockset[w]}
+                }
+                \smashoperator[r]{\sum_{w \in \windowset[t]}}
+                    \bsfs[w]_j \size{\blockset[w]}
+            \end{math}
+            \tcp*[r]{M2-step}
+        }
+        %
+        $t \gets t + 1$\;
+    }
+    %
+    \Return $\estsfs[t]$
+    %
+    \caption{Window EM algorithm}
+    \label{alg:window}
+\end{algorithm}
+\end{minipage}
+}
+\end{center}
+\end{figure}
+
+As in standard EM, we pre-compute all SAF likelihoods and make an arbitrary initial guess $\estsfs[0]$ of the SFS.
+In addition, we choose two hyperparameters $\blocks$ (the number of blocks) and $\windows$ (the window size).
+Before starting optimization, all sites indices are randomly assigned to one of $\blocks$ blocks $\blockset = \oset{\blockset[1], \dots, \blockset[\blocks]}$ with $\size{\blockset[b]} = \lfloor M / \blocks \rfloor$ for $b < \blocks$, and $\size{\blockset[\blocks]} = M \bmod \blocks$.
+The reason for doing so is simply to break patterns of linkage disequilibrium in particular blocks of input data, which will make the SFS within each block more similar to the global SFS.
+Blocks are non-overlapping and exhaustive, so that $\bigcup_{b = 1}^{\blocks} \blockset[b] = \set{1, \dots, M}$ and $\bigcap_{b = 1}^{\blocks} \blockset[b] = \varnothing$.
+
+After this initialisation, the window EM algorithm is defined as an iterative procedure that alternates between an E-step and an M-step, where the M-step in turn is split into an M1-step and an M2-step.
+
+The E-step of the algorithm involves computing posteriors conditional on the current estimate of the SFS, much like standard EM.
+The difference is that we only process a single block of sites.
+Let $f(t) = (t - 1) \bmod \blocks + 1$, so that $f(1 + x\blocks) = 1, f(2 + x\blocks) = 2, \dots$ for $x \geq 0$.
+Then, at time step $t$, we compute $\post[t]_{mj}$ for all $m \in \blockset[f(t + 1)]$ and all possible derived allele counts $j \in \ctset$ using \cref{eq:estep}.
+
+In the M1-step, the $\post$s for the current block are used to give a block SFS estimate $\bsfs[t]$.
+This is analogous to the standard M-step \cref{eq:mstep}, so that for each $j \in \ctset$
+%
+\begin{equation}\label{eq:windowm1step}
+    \bsfs[t + 1]_j 
+    = 
+    \frac{1}{\size{\blockset[f(t + 1)]}} 
+        \smashoperator[r]{\sum_{m \in \blockset[f(t + 1)]}}
+        \post[t]_{mj}
+    \, ,
+\end{equation}
+%
+
+These block estimates are then used in the M2-step to update the overall SFS estimate for each $j \in \ctset$,
+%
+\begin{align}\label{eq:windowm2step}
+    \estsfs[t + 1]_j
+    &=
+    \frac{1}{
+        \sum_{w \in \windowset[t]}
+            \size{\blockset[w]}
+    }
+    \smashoperator[r]{\sum_{w \in \windowset[t]}}
+        \bsfs[w]_j \size{\blockset[w]} \nonumber \\
+    &\stackrel{*}{=}
+    \frac{1}{W} 
+    \smashoperator[r]{\sum_{w \in \windowset[t]}}
+        \bsfs[w]_j
+    \, .
+\end{align}
+%
+where $\windowset[t] = \set{f(t + 1 - w) \mid w \in \set{0, \dots, \min(t, \windows - 1)}}$ is the window of the $\windows$ latest block indices at time $t$.
+We use $\stackrel{*}{=}$ to express equality under the common special case when either $M / \blocks = 0$ or $\blocks \notin \windowset[t]$, so that there are no issues with blocks of unequal sizes in the current window.
+In this case, the M2-step simplifies to the mean of the past $\windows$ block estimates.
+
+Pseudo-code for window EM is given in \cref{alg:window}, and an illustration comparing window EM to standard EM is shown in \cref{fig:window}.
+
+In the below, we are interested in comparing standard EM and window EM.
+For clarity, we will use the term \enquote{epoch} to refer to a full pass through the data for either algorithm.
+In the case of standard EM, an epoch is simply a single iteration; for window EM, an epoch corresponds to $\blocks$ iterations.
+
+\paragraph{Convergence}
+
+In the standard EM algorithm, the data log-likelihood \labelcref{eq:likelihood} can typically be evaluated with little computational overhead during the E-step.
+Therefore, a common convergence criterion is based on the difference between the log-likelihood values of successive epochs.
+That is, let
+%
+\begin{equation}
+    L_{t} = \frac{1}{M} \sum_{m = 1}^M \log \prob(\data \given \estsfs[t])
+    \, ,
+\end{equation}
+%
+and convergence is reached when $L_{t + 1} - L_t < \delta$, for some tolerance $\delta$ decided ahead of time.
+
+For window EM, the same does not apply, since no full E-step is ever taken.
+However, the likelihood for each block can be calculated cheaply during each block E-step.
+Therefore, we define for epoch $e \in \set{1, 2, \dots}$,
+%
+\begin{equation}\label{eq:windowstop}
+    L'_{e}
+    =
+    \sum_{b = 1}^{\blocks} 
+        \frac{1}{\size{\blockset[b]}}
+        \sum_{m \in \blockset[b]}
+        \log \prob(\data[m] \given \estsfs[e\blocks - b])
+    \, ,
+\end{equation}
+%
+that is, the sum of log-likelihoods of SFS estimates used over the past epoch, each evaluated in the block for which they were used in a block E-step, normalised by block size for convenience.
+We then propose the simple convergence criterion for window EM such that convergence is defined as $L'_{e + 1} - L'_{e} < \delta$.

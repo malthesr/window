@@ -1,0 +1,12 @@
+\begin{abstract}
+\noindent
+The site frequency spectrum (SFS) is an important summary statistic in population genetics used for inference on demographic history and selection.
+However, estimation of the SFS from called genotypes introduce bias when working with low-coverage sequencing data.
+Methods exist for addressing this issue, but sometimes suffer from two problems.
+First, they can have very high computational demands, to the point that it may not be possible to run estimation for genome-scale data.
+Second, existing methods are prone to overfitting, especially for multi-dimensional SFS estimation.
+In this article, we present a stochastic expectation-maximisation algorithm for inferring the SFS from NGS data that addresses these challenges.
+We show that this algorithm greatly reduces runtime and enables estimation with constant, trivial RAM usage.
+Further, the algorithm reduces overfitting and thereby improves downstream inference.
+An implementation is available at \shorturl{github.com/malthesr/winsfs}.
+\end{abstract}

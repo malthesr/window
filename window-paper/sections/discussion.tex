@@ -1,0 +1,54 @@
+\section{Discussion}
+
+We have presented the window EM algorithm for inferring the SFS from low-depth data, as well as the \winsfs implementation of this algorithm.
+The window EM algorithm updates SFS estimates in smaller blocks of sites, and averages these block estimates in larger windows.
+We have argued that this approach has three related advantages relative to current methods.
+First, by updating more often, convergence happens one to two orders of magnitude faster.
+Due to the window averaging, this improvement in convergence times does not occur at the cost of stability.
+Second, due to the fast convergence, it is feasible to run the window EM algorithm out of memory.
+This brings the memory requirements of the algorithm from hundreds of gigabytes of RAM to virtually nothing.
+Third, by optimising over different subsets of the data in each iteration, the algorithm is prevented from overfitting to the input data.
+In practice, this means we get biologically more plausible spectra.
+
+On this last point, it is worth emphasising that while \winsfs appears to have the effect of smoothing the spectrum in a beneficial way, this smoothing effect is entirely implicit.
+That is, it is nowhere explicitly modelled that each estimated bin should be similar to neighbouring bins to avoid checkerboard patterns.
+Rather, the apparent smoothing emerges because \winsfs mitigates some of the issues with overfitting that may otherwise manifest as a checkerboard pattern.
+As shown in the simulations, \winsfs does not remove true peaks in the SFS.
+In the broader setting of stochastic optimization, window EM is in this way related to forms of Polyak-Ruppert iterate averaging schemes as used in stochastic gradient methods \cite{Ruppert1988, Polyak1992}, variants of which have also been shown to control variance and induce regularisation \cite{Jain2018, Neu2018}, similar to what we have observed here.
+
+Within the EM literature, window EM is \emph{prima facie} quite similar in spirit to other versions of the stochastic EM algorithm \cite{Neal1998,Sato2000,Cappe2009,Liang2009,Chen2018}.
+They too work on smaller blocks, and seek some way of controlling stability in how the block estimate $\bsfs$ is incorporated in the overall estimate $\estsfs$.
+Typically, this involves an update of the form $\gamma_t \bsfs + (1 - \gamma_t) \estsfs$ for some weight $\gamma_t$ decaying as a function of iteration $t$.
+During initial experimentation, we empirically found that such methods tended to increase the noise in the spectrum, rather than reduce it.
+This problem likely arises because estimating the multidimensional SFS requires estimating many parameters for which very little information is available in any one batch.
+Therefore, by having an update step involving only the current estimate and a single, small batch of sites, significant noise is introduced in the low-density part of the spectrum.
+In contrast, the window EM approach still optimises over smaller batches for speed, but actually considers large amounts of data in the update step by summing the entire window of batch estimates, thereby decreasing the noise.
+
+For SFS inference specifically, prior work exists to improve estimation for low-depth sequencing data.
+For example, it has been proposed to \enquote{band} SAF likelihoods to make estimation scale better in the number of sampled individuals \cite{Han2014,MasSandoval2022}.
+Briefly, the idea is that at each site, all the mass in the SAF likelihood tends to be concentrated in a small band around the most likely sample frequency, and downstream inference can be adequately carried out by only propagating this band  and setting all others to zero.
+By doing so, run-time and RAM can be saved by simply ignoring all the zero bins outside the chosen band.
+We note that such ideas are orthogonal to the work presented here, since they are concerned with the representation of the input data, and thereby indirectly modify all downstream optimisation methods.
+Future work on \winsfs may involve the ability to run from banded SAF likelihoods.
+This will be important with large sample sizes, in the hundreds of individuals. 
+
+Others have focused on the implementation details of the EM algorithm, for instance using GPU acceleration \cite{Lu2012}.
+Such efforts still have the typical high memory requirements, and do not address the overfitting displayed by the standard EM algorithm.
+Moreover, we find that the presented algorithmic improvements, combined with an efficient implementation, serve to make \winsfs more than competitive with such efforts in terms of runtime.
+Indeed, with \winsfs converging in-memory in less than an hour on genome-scale data, runtime is no longer a significant bottleneck for SFS estimation.
+
+We emphasise, however, that the window EM algorithm and \winsfs are unlikely to yield any meaningful benefits with sequencing data at above around \SIrange{10}{12}{\depth} coverage.
+With such data, better inference of the SFS will be obtained by estimation directly from genotype calls with appropriate filters.
+Nevertheless, efficient and robust methods remain important for low-coverage data.
+This is partly because low-coverage data may sometimes be the only option, for example when working with ancient DNA.
+Also, such methods allow intentionally sequencing at lower coverage, decreasing the sequencing cost per individual.
+
+In addition, we do not expect \winsfs to perform better than \realsfs when data is not available for many sites (e.g \SI{<100}{\mega\bases}) due to the fact that \winsfs only uses parts of the available data directly in the final estimation.
+
+Finally, improvements in the SFS estimates by \winsfs are unlikely to be significant for simple summary statistics like $\theta$, $\fst$, or $f$-statistics.
+For such purposes, \winsfs simply produces results similar to \realsfs, although much faster. 
+However, as the number of dimensions and samples increase, and as sequencing depth decreases, overfitting will start to influence the low-frequency bins of the spectrum.
+Where this information is used downstream, \winsfs will lead to better and more interpretable results, and can potentially help solve commonly known biases in parameter estimates arising from model misspecification \cite{Momigliano2021}.
+We have seen this in the $\dadi$ case study, but we believe the same would be true of other popular demographic inference frameworks including fastsimcoal \cite{Excoffier2011,Excoffier2013}, moments \cite{Jouganous2017}, and momi \cite{Kamm2017}.
+It may also be significant for other methods for complex inference from the multidimensional spectrum, including inference of fitness effects using fit$\dadi$ \cite{Kim2017,Huang2021} or introgression using $\text{D}_{\text{FS}}$ \cite{Martin2020}, though we have not explored these methods.
+

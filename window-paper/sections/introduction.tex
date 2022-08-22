@@ -1,0 +1,30 @@
+\section{Introduction}
+
+The site frequency spectrum (SFS) is the joint distribution of allele frequencies among one or more populations, and it serves as an important summary statistic in population genetics.
+For instance, the SFS is sufficient for computing nucleotide diversity \cite{Korneliussen2013}, $\fst$ \cite{Bhatia2013}, and $f$-statistics \cite{Peter2016}.
+Furthermore, the SFS may be used for inferring demographic history \cite{Marth2004, Gutenkunst2009, Excoffier2013} and selection \cite{Tajima1989, Fay2000, Nielsen2005}.
+
+When working with high-quality data, it is usually straightforward to estimate the SFS from called genotypes.
+However, when genotype calls are uncertain, standard methods lead to significant bias in the estimated SFS \cite{Nielsen2011}, which propagates to downstream inference \cite{Han2013}.
+In particular, this situation arises when working with next-generation sequencing (NGS) data at low coverage and may be compounded by additional data-quality issues.
+Low-coverage NGS data is sometimes the only available option, for instance when working with ancient DNA \cite{Olalde2019,Margaryan2020,vanderValk2021}.
+Sequencing at low coverage is also a popular choice to reduce sequencing costs, since most of the key population genetics analysis remain possible with such data \cite{Lou2021}.
+
+To estimate the SFS from low-coverage data, several methods have been proposed which account for the genotype uncertainty in estimation of the SFS \cite{Li2011, Nielsen2011}.
+These are based on finding the SFS that maximises the data likelihood using numeric optimisation.
+Two factors combine to create a computational challenge for such methods.
+First, in order to achieve an accurate estimate of the SFS, these methods usually require many iterations, each of which requires a full pass over the input data.
+Second, unlike most genetics analyses, the SFS cannot be based on only the small subset of the variable sites, but must consider all sites.
+Taken together, this means that some summary of the full data must be held in RAM and iterated over many times.
+For genome-scale NGS data from more than a few dozen samples, or in more than one dimension, this is often not computationally feasible, as tens of hours of runtime and hundreds of gigabytes of RAM may be required.
+Current approaches for dealing with this issue restrict the analysis to fewer individuals and/or smaller regions of the genome \cite{SanchezBarreiro2021}, leading to less accurate results.
+
+An additional problem with current methods is that they are prone to overfitting.
+In the multi-dimensional setting in particular, there is often very little information available for many of the entries in the frequency spectrum.
+Therefore, by considering the full data set, existing algorithms risk fitting noise, leading to estimates with poor generalisability.
+
+In this paper, we present a novel version of the stochastic expectation-maximisation (EM) algorithm for estimation of the SFS from NGS data.
+In each pass through the data, this algorithm updates the SFS estimate multiple times in smaller blocks of sites.
+We show that for low-coverage whole-genome sequencing (WGS) data, this algorithm requires only a few full passes over the data.
+This considerably decreases running time, and means that it is possible to estimate the SFS using constant, negligible RAM usage by streaming data from disk.
+Moreover, by only considering smaller subsets of the data at a time, we show that this method reduces overfitting, which in turns leads to improved downstream inference.

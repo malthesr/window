@@ -1,0 +1,116 @@
+% General
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[british]{babel}
+\usepackage{microtype}
+
+% Page layout
+\usepackage[top=1in, bottom=1in, left=1.75in, right=1.75in]{geometry}
+
+% Lists
+\usepackage[inline]{enumitem}
+
+% Cross-referencing
+\usepackage{xr-hyper}
+
+% Quotes
+\usepackage{csquotes}
+
+% Math
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% Line numbers
+\usepackage{lineno}
+
+% Title
+\usepackage{authblk}
+
+% Bibliography
+\usepackage[
+    style=nature,
+    backend=biber,
+    sorting=none,
+    doi=false,
+    isbn=false,
+    url=false,
+    intitle=true,
+    eprint=false
+]{biblatex}
+
+% Macros
+\usepackage{xparse}
+\usepackage{xspace}
+
+% Colours
+\usepackage{xcolor}
+
+% References
+\usepackage{hyperref}
+\usepackage[noabbrev]{cleveref}
+\creflabelformat{equation}{(#2\textup{#1}#3)}
+\crefformat{equation}{eq. (#2#1#3)}
+\labelcrefformat{equation}{(#2#1#3)}
+\crefname{supfigure}{supplementary figure}{supplementary figures}
+\Crefname{supfigure}{Supplementary figure}{Supplementary figures}
+\crefname{suptable}{supplementary table}{supplementary tables}
+\Crefname{suptable}{Supplementary table}{Supplementary tables}
+\crefname{suptext}{supplementary text}{supplementary texts}
+\Crefname{suptext}{Supplementary text}{Supplementary texts}
+\crefname{algocf}{algorithm}{algorithms}
+\Crefname{algocf}{Algorithm}{Algorithms}
+
+% Algorithm pseudo-code
+\usepackage[ruled,noend]{algorithm2e}
+\SetKwInOut{Parameters}{Parameters}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+\DontPrintSemicolon
+
+% Tables
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{float}
+\setlength\tabcolsep{4pt}
+
+% Figures
+\usepackage{afterpage}
+\usepackage[skip=0.5em]{caption}
+\usepackage{subcaption}
+\DeclareCaptionLabelFormat{bold}{\textbf{(#2)}}
+\DeclareCaptionType{supfigure}[Supplementary Figure][List of Supplementary Figures]
+\DeclareCaptionType{suptable}[Supplementary Table][List of Supplementary Tables]
+\captionsetup{
+    justification=centering,
+    labelfont=bf,
+    font=footnotesize,
+    subrefformat=bold,
+    width=0.8\paperwidth,
+}
+\usepackage{graphicx}
+
+% Units
+\usepackage[
+    exponent-product=\cdot,
+    range-phrase=--,
+    per-mode=reciprocal, 
+    detect-all=true
+]{siunitx}
+\DeclareSIUnit{\base}{b}
+\DeclareSIUnit{\depth}{\textsf{x}}
+\DeclareSIUnit{\million}{\text{million}}
+\DeclareSIUnit{\year}{year}
+\DeclareSIUnit{\years}{years}
+\DeclareSIUnit{\generation}{gen}
+\DeclareSIUnit{\generations}{gen}
+\DeclareSIUnit{\individual}{ind}
+\DeclareSIUnit{\individuals}{ind}
+\DeclareSIUnit{\chromosome}{chrom}
+\DeclareSIUnit{\bases}{b}
+
+% Supplementary
+\usepackage{currfile}
+\usepackage{standalone}

@@ -1,0 +1,50 @@
+
+\documentclass[11pt]{article}
+
+\usepackage{imports}
+\input{macros}
+
+\externaldocument[sup-]{supplementary}
+
+\title{Estimation of site frequency spectra from low-coverage sequencing data using stochastic EM reduces overfitting, runtime, and memory usage}
+
+\author[1]{Malthe Sebro Rasmussen}
+\author[1]{Gen\'{i}s Garcia-Erill}
+\author[2]{Thorfinn Sand Korneliussen}
+\author[3]{Carsten Wiuf}
+\author[1]{Anders Albrechtsen}
+
+\affil[1]{Department of Biology, University of Copenhagen}
+\affil[2]{GLOBE Institute, University of Copenhagen}
+\affil[3]{Department of Mathematical Sciences, University of Copenhagen}
+
+\date{}
+
+\bibliography{bibliography}
+
+\linenumbers
+
+\begin{document}
+
+\maketitle
+
+\input{sections/abstract.tex}
+\input{sections/introduction.tex}
+\input{sections/methods.tex}
+\input{sections/results.tex}
+\input{sections/discussion.tex}
+
+\section{Code and data availability}
+
+The human data analysed is part of the 1000 Genomes \cite{1000g2015} phase 3 low depth sequencing data.
+Alignments have been made available by the 1000G project and can be accessed at \shorturl{ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/}.
+The impala data has been made available via the SRA with accession \texttt{PRJNA862915}.
+Analysis and plotting code, as well as the cleaned data corresponding to the final results, is available at \shorturl{github.com/malthesr/window} and the \winsfs software itself at \shorturl{github.com/malthesr/winsfs}.
+
+\section{Acknowledgements}
+AA, CW, and MSR are supported by the Independent Research Fund Denmark (grant numbers: 8021-00360B, 0135-00211B) and the University of Copenhagen through the Data+ initiative. GGE is supported by the Independent Research Fund Denmark (grant number: 8049-00098B). TSK is funded by a Carlsberg Foundation Young Researcher Fellowship awarded by the Carlsberg Foundation in 2019 (CF19-0712).
+
+\pagebreak
+\printbibliography
+
+\end{document}

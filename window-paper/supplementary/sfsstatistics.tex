@@ -1,0 +1,70 @@
+\section{SFS statistics}\label{text:sfsstatistics}
+
+The results section of the main text refers in several instances to the computation of various statistics from the SFS.
+The following subsections outline the basis of these calculations.
+
+\paragraph{Tajima's $\theta$}
+
+Based on a one-dimensional SFS $\sfs$ from $N$ diploid individuals, Tajima's estimator $\hat{\theta}_{\text{Tajima}}$ of $\theta$ can be calculated \cite{Korneliussen2013}
+%
+\begin{equation}\label{eq:sfstajima}
+    \hat{\theta}_{\text{Tajima}}
+    =
+    \binom{n}{2} \sum_{j = 1}^{2N - 1} j(n - j) \sfs_j 
+    \, .
+\end{equation}
+
+\paragraph{Hudson's $fst$}
+
+For a two-dimensional SFS $\sfs$, we can estimate Hudson's $fst$ by \cite{Bhatia2013}
+%
+\NewDocumentCommand{\freq}{m}{\tilde{p}_{j_{#1}}}
+\begin{equation}{\label{eq:sfsfst}}
+    \fst
+    =
+    \sum_{j \in \ctset \setminus \set{\oset{0, 0}, \oset{2N_1, 2N_2}}} 
+    \frac{\displaystyle
+        (\freq{1} - \freq{2})^2 
+        - 
+        \frac{\freq{1}(1 - \freq{1})}{N_1 - 1} 
+        - 
+        \frac{\freq{2}(1 - \freq{2})}{N_2 - 1}
+    }{
+        \freq{1}(1 - \freq{2})
+        + 
+        \freq{2}(1 - \freq{1})
+    } \sfs_j \, ,
+\end{equation}
+%
+where $\ctset = \set{0, \dots, 2N_1} \times \set{0, \dots, 2N_2}$ as in the main text, so that
+%
+\begin{equation}
+    \freq{i} = j_i / 2N_i
+    \, ,
+\end{equation}
+%
+corresponds to a possible sample allele frequency in the $i$th population.
+
+\paragraph{$f_2$-statistics}
+
+The $f_2$ statistic \cite{Reich2009, Peter2016} is defined for two populations,
+%
+\begin{equation}\label{eq:f2}
+    f_2 = \E[(p_1 - p_2)^2] 
+    \, ,
+\end{equation}
+%
+where $p_1$, $p_2$ are allele frequencies in the two populations.
+For a finite sample of $N_1$, $N_2$ individuals from the populations and the two dimensional $\sfs$ based on these samples, we estimate
+%
+\begin{equation}\label{eq:sfsf2}
+    \hat{f_2}
+    = 
+    \sum_{j \in \ctset} 
+    (\freq{1} - \freq{2})^2 \sfs_j
+    \, ,
+\end{equation}
+%
+with $\ctset$ and $\freq{i}$ defined as for the $fst$ estimates above.
+
+\printbibliography

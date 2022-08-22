@@ -1,0 +1,229 @@
+\section{Figures}
+
+\begin{supfigure}[H]
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/human_depth}
+    }
+    \end{center}
+    \caption{
+        Human training data depth distributions.
+        Depth over sites for each individual is shown.
+        Sites with depth greater than \num{30} not shown.
+    }
+    \label{fig:human_depth}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/impala_depth}
+    }
+    \end{center}
+    \caption{
+        Impala training data depth distributions.
+        Depth over sites for each individual is shown.
+        Sites with depth greater than \num{30} not shown.
+    }
+    \label{fig:impala_depth}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    {
+        \phantomsubcaption\label{fig:yri_loglik-a}
+        \phantomsubcaption\label{fig:yri_loglik-b}
+    }
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/yri_loglik}
+    }
+    \end{center}
+    \caption{
+        Log-likelihood over epochs for the human YRI population.
+        \subref{fig:yri_loglik-a}: Train log-likelihood.
+        \subref{fig:yri_loglik-b}: Test log-likelihood.
+    }
+    \label{fig:yri_loglik}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    {
+        \phantomsubcaption\label{fig:masaimara_loglik-a}
+        \phantomsubcaption\label{fig:masaimara_loglik-b}
+    }
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/masaimara_loglik}
+    }
+    \end{center}
+    \caption{
+        Log-likelihood over epochs for the impala Maasai Mara population.
+        \subref{fig:masaimara_loglik-a}: Train log-likelihood.
+        \subref{fig:masaimara_loglik-b}: Test log-likelihood.
+    }
+    \label{fig:masaimara_loglik}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    {
+        \phantomsubcaption\label{fig:f2-a}
+        \phantomsubcaption\label{fig:f2-b}
+    }
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/f2}
+    }
+    \end{center}
+    \caption{
+        $f_2$-statistics over epochs.
+        \subref{fig:f2-a}: Human CEU/YRI populations.
+        \subref{fig:f2-b}: Impala Shangani/Maasai Mara populations.
+    }
+    \label{fig:f2}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/sim_truth}
+    }
+    \end{center}
+    \caption{
+        True spectra for the data simulations.
+        Results shown for scenarios using sample sizes of $5$, $10$, or $20$ individuals.
+        Fixed sites not shown for scale, total proportion indicated by arrows.
+        The colour scale matches the one used in \cref{fig:sim_realsfs} and \cref{fig:sim_winsfs}.
+    }
+    \label{fig:sim_truth}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/sim_realsfs}
+    }
+    \end{center}
+    \caption{
+        Spectra inferred by \realsfs shown at the default stopping time for the simulated data.
+        Results shown for a grid of scenarios using sample sizes of $5$, $10$, or $20$ individuals (labelled top) and mean depth $2$, $4$, and $8$ (labelled right).
+        Panel labels give the stopping epoch.
+        Fixed sites not shown for scale, total proportion indicated by arrows.
+        The colour scale matches the one used in \cref{fig:sim_truth} and \cref{fig:sim_winsfs}.
+    }
+    \label{fig:sim_realsfs}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/sim_winsfs}
+    }
+    \end{center}
+    \caption{
+        Spectra inferred by $\winsfs[100]$ shown at the default stopping time for the simulated data.
+        Results shown for a grid of scenarios using sample sizes of $5$, $10$, or $20$ individuals (labelled top) and mean depth $2$, $4$, and $8$ (labelled right).
+        Panel labels give the stopping epoch.
+        Fixed sites not shown for scale, total proportion indicated by arrows.
+        The colour scale matches the one used in \cref{fig:sim_truth} and \cref{fig:sim_realsfs}.
+    }
+    \label{fig:sim_winsfs}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/peak_truth}
+    }
+    \end{center}
+    \caption{
+        True spectra for the data simulations with added peaks.
+        This corresponds to the right-most panel of \cref{fig:sim_truth}, except with \num{10000} counts added in seven arbitrary bins near the centre, and without constraining the colour scale.
+        Fixed sites not shown for scale, total proportion indicated by arrows.
+    }
+    \label{fig:peak_truth}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/peak_realsfs}
+    }
+    \end{center}
+    \caption{
+        Residuals of the spectra inferred by \realsfs shown at the default stopping time for the simulated data with added peaks.
+        The residual is the estimate minus the truth, so that positive values correspond to estimated values being higher than the truth, and negative values to the estimate being lower than the truth.
+        Results shown for a grid of scenarios mean depth $2$, $4$, and $8$.
+        Panel labels give the stopping epoch.
+        The colour scale matches the one used in \cref{fig:peak_winsfs}.
+    }
+    \label{fig:peak_realsfs}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/peak_winsfs}
+    }
+    \end{center}
+    \caption{
+        Residuals of the spectra inferred by $\winsfs[100]$ shown at the default stopping time for the simulated data with added peaks.
+        The residual is the estimate minus the truth, so that positive values correspond to estimated values being higher than the truth, and negative values to the estimate being lower than the truth.
+        Results shown for a grid of scenarios mean depth $2$, $4$, and $8$.
+        Panel labels give the stopping epoch.
+        The colour scale matches the one used in \cref{fig:peak_realsfs}.
+    }
+    \label{fig:peak_winsfs}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/stop}
+    }
+    \end{center}
+    \caption{
+        Difference $L'_{e} - L_{e - 1}$ over epochs $e$ for the different data sets and different window sizes $\windows \in \set{100, 250, 500}$.
+        The horizontal line marks the chosen default tolerance $\delta = 10^{-4}$, so that the first epoch under the line marks convergence.
+        Number of epochs before convergence is labelled.
+        For convenience, the vertical dashed lines mark the the epoch at which the highest test log-likelihood is achieved.
+    }
+    \label{fig:stop}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/stream}
+    }
+    \end{center}
+    \caption{
+        Comparison of \winsfs reading the data into memory and streaming pre-shuffled data on the joint impala data set.
+        The difference in train log-likelihood between the two modes is shown for the first five epochs.
+        A positive values means that streaming achieved a higher log-likelihood.
+    }
+    \label{fig:stream}
+\end{supfigure}
+
+\begin{supfigure}[H]
+    {
+        \phantomsubcaption\label{fig:bench_masaimara-a}
+        \phantomsubcaption\label{fig:bench_masaimara-b}
+    }
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/bench_masaimara}
+    }
+    \end{center}
+    \caption{
+        Computational resource usage of \winsfs and \realsfs for the one-dimensional estimation of the Maasai Mara impala population.
+        \winsfs can be run while loading input data into RAM, or streaming through it on disk.
+        In the latter case, data must be shuffled on disk before hand.
+        \subref{fig:bench_masaimara-a}:
+            Runtime required with \num{20} threads for various numbers of epochs.
+            Results for \winsfs are shown for in-memory usage and streaming mode.
+            For streaming modes, times are given with and without the extra time taken to shuffle data on disk before running.
+        \subref{fig:bench_masaimara-b}:
+            Peak memory usage (maximum resident set size).
+    }
+    \label{fig:bench_masaimara}
+\end{supfigure}

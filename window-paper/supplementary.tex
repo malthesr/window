@@ -1,0 +1,45 @@
+\documentclass{article}
+
+\usepackage{imports}
+\input{macros}
+
+\DeclareExpandableDocumentCommand{\thesection}{}{S\arabic{section}}
+\DeclareExpandableDocumentCommand{\thesubsection}{}{S\arabic{subsection}}
+\DeclareExpandableDocumentCommand{\thesubsubsection}{}{S\arabic{subsubsection}}
+\DeclareExpandableDocumentCommand{\theparagraph}{}{S\arabic{paragraph}}
+\DeclareExpandableDocumentCommand{\theequation}{}{S.\arabic{equation}}
+\DeclareExpandableDocumentCommand{\thetable}{}{S.\arabic{table}}
+\DeclareExpandableDocumentCommand{\thefigure}{}{S.\arabic{figure}}
+\crefalias{section}{suptext}
+
+\title{Supplementary materials}
+\author{}
+\date{}
+
+\bibliography{bibliography}
+
+\linenumbers
+
+\begin{document}
+
+\maketitle
+
+\begin{refsection}
+\input{supplementary/sfsem}
+\end{refsection}
+
+\clearpage
+
+\begin{refsection}
+\input{supplementary/sfsstatistics}
+\end{refsection}
+
+\clearpage
+
+% \input{supplementary/tables}
+
+% \clearpage
+
+\input{supplementary/figures}
+
+\end{document}

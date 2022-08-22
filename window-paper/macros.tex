@@ -1,0 +1,81 @@
+% General
+\NewDocumentCommand{\todo}{m}{\textcolor{red}{[TODO: #1]}}
+\NewDocumentCommand{\scinum}{m}{\num[scientific-notation=true]{#1}}
+
+% Math
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclarePairedDelimiterX{\kldivinner}[2]{(}{)}{#1 \; \delimsize \| \; #2}
+\NewDocumentCommand{\E}{}{\text{E}}
+\NewDocumentCommand{\given}{O{}}{\:#1\vert\:}
+\NewDocumentCommand{\indicator}{o}{
+	\mathbf{I}\IfNoValueTF{#1}{}{[#1]}
+}
+\NewDocumentCommand{\kldiv}{mm}{D_{\text{KL}}\kldivinner{#1}{#2}}
+\NewDocumentCommand{\prob}{}{p}
+\NewDocumentCommand{\set}{m}{\{#1\}}
+\NewDocumentCommand{\size}{m}{\lvert #1 \rvert}
+\NewDocumentCommand{\oset}{m}{(#1)}
+
+% Variables
+\NewDocumentCommand{\blocks}{}{B}
+\NewDocumentCommand{\blockset}{o}{
+	\mathcal{\blocks}\IfNoValueTF{#1}{}{_{#1}}
+}
+\NewDocumentCommand{\bsfs}{o}{
+	\widehat{\psi}\IfNoValueTF{#1}{}{^{(#1)}}
+}
+\NewDocumentCommand{\ct}{o}{
+	Z\IfNoValueTF{#1}{}{_{#1}}
+}
+\NewDocumentCommand{\ctset}{}{\mathcal{J}}
+\NewDocumentCommand{\data}{o}{
+	X\IfNoValueTF{#1}{}{_{#1}}
+}
+\NewDocumentCommand{\estsfs}{o}{
+	\widehat{\sfs}\IfNoValueTF{#1}{}{^{(#1)}}
+}
+\NewDocumentCommand{\gt}{o}{
+	G\IfNoValueTF{#1}{}{_{#1}}
+}
+\NewDocumentCommand{\post}{o}{
+	q\IfNoValueTF{#1}{}{^{(#1)}}
+}
+\NewDocumentCommand{\sfs}{}{\phi}
+\NewDocumentCommand{\windows}{}{W}
+\NewDocumentCommand{\windowset}{o}{
+	\mathcal{\windows}\IfNoValueTF{#1}{}{_{#1}}
+}
+
+% Programs
+\NewDocumentCommand{\realsfs}{}{\texttt{realSFS}\xspace}
+\NewDocumentCommand{\winsfs}{o}{%
+	\texttt{winsfs}\IfNoValueTF{#1}{}{_{#1}}\xspace
+}
+\NewDocumentCommand{\angsd}{}{\texttt{ANGSD}\xspace}
+
+% Misc
+\NewDocumentCommand{\fst}{}{\text{F}_{\textsc{st}}\xspace}
+\NewDocumentCommand{\dadi}{}{\partial a \partial i\xspace}
+\NewDocumentCommand{\shorturl}{m}{
+    \href{https://#1}{\texttt{#1}}
+}
+
+% Line numbers fix,
+% taken from https://tex.stackexchange.com/a/55297
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+  \renewenvironment{#1}%
+     {\linenomath\csname old#1\endcsname}%
+     {\csname oldend#1\endcsname\endlinenomath}}% 
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+  \patchAmsMathEnvironmentForLineno{#1}%
+  \patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+\patchBothAmsMathEnvironmentsForLineno{equation}%
+\patchBothAmsMathEnvironmentsForLineno{align}%
+\patchBothAmsMathEnvironmentsForLineno{flalign}%
+\patchBothAmsMathEnvironmentsForLineno{alignat}%
+\patchBothAmsMathEnvironmentsForLineno{gather}%
+\patchBothAmsMathEnvironmentsForLineno{multline}%
+}

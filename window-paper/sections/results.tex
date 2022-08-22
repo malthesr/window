@@ -1,0 +1,411 @@
+\section{Results}
+
+To test the window EM algorithm, we implemented it in the \winsfs program, available at \shorturl{github.com/malthesr/winsfs}. We compare \winsfs to \realsfs, which implements the standard EM algorithm and serves as the current state of art.
+We adopt two complementary approaches for evaluating performance of \winsfs.
+First, we use two different real-world WGS data sets to compare \winsfs to \realsfs, which implements the standard EM algorithm and serves as the current state of the art.
+\realsfs has already been validated on simulated data \cite{Han2014, Korneliussen2014}, and use split training and test data sets to evaluate any observed differences.
+Second, we use simulated data to validate \winsfs under conditions of known truth across a range of data qualities and sample sizes.
+
+\paragraph{Real-world data sets}
+
+\begin{table}
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \input{tables/data_train}
+    }
+    \end{center}
+    \caption{
+		Overview of the input training data.
+    }
+    \label{tab:data_train}
+\end{table}
+
+We tested \winsfs and \realsfs on two real-world WGS data sets of very different quality as described below.
+An overview is shown in \cref{tab:data_train}.
+
+We first analyse \num{10} random individuals from each of the YRI (Yoruba Nigerian) and CEU (Europeans in Utah) populations from the 1000 Genomes Project \cite{1000g2015}.
+This human data was sequenced to \SIrange{3}{8}{\depth} coverage and mapped to the high quality human refence genome.
+We created SAF files using \angsd \cite{Korneliussen2014} requiring minimum base and mapping quality \num{30} and polarising the spectrum using the chimpanzee as an outgroup.
+We then split this input data into test and training data, such that the first half of each autosome was assigned to the training set, and the second half to the test set.
+The resulting training data set contains \scinum{1.17e9} sites for both YRI and CEU, while the test data set contains \scinum{1.35e9} sites for both.
+Training set depth distributions for each individual are shown in \cref{sup-fig:human_depth}.
+
+We also analyse a data set of much lower quality from \num{12} and \num{8} individuals from two impala populations that we refer to as \enquote{Maasai Mara} and \enquote{Shangani}, respectively, based on their sampling locations. These populations were sequenced to only \SIrange{1}{3}{\depth} with the addition of a single high-depth sample in each population (see \cref{sup-fig:impala_depth}). The data was mapped to a very fragmented assembly, and then we split the data into training and test sets just as for the human data. However, due to the low quality assembly we analysed only sites on contigs larger than \SI{100}{\kilo\bases}, and filtering sites based on depth outliers, excess heterozygosity, mappability, and repeat regions. We polarised using the impala reference itself.
+This process is meant to mirror a realistic workflow for working with low-quality data from a non-model organism.
+The impala input data ends up somewhat smaller than the human data set, with approximately \scinum{6.3e8} sites in both test and training data sets.
+
+Broadly, the human data is meant to exemplify medium-quality data with coverage towards the lower end, but with no other significant issues.
+The impala data, on the other hand, represents low-quality data:
+not only is the coverage low and fewer sites are available, but the impala reference genome is poor quality with \num{7811} contigs greater than \SI{100}{\kilo\bases} and $n_{50} = \scinum{3.4e-5}$ (that is, \SI{50}{\percent} of the assembly bases lie on contigs of this size or greater).
+This serves to introduce further noise in the mapping process, which amplifies the overall data uncertainty.
+Finally, the impala populations are more distinct, with $\fst \approx 0.24$ compared to $0.13$ between the human populations.
+As we will see below, this creates additional challenges for estimation of the two-dimensional SFS.
+
+\paragraph{Estimation}
+
+Using the training data sets, we estimated the one-dimensional SFS for YRI and Maasai Mara, as well as the two-dimensional SFS for CEU/YRI and Shangani/Maasai Mara.
+We ran \winsfs for \num{500} epochs using a fixed number of blocks $\blocks = 500$ and window sizes $\windows \in \set{100, 250, 500}$.
+We will focus on the setting with window size $\windows = 100$.
+For convenience, we introduce the notation $\winsfs[100]$ to refer to \winsfs with hyperparameter settings $\blocks = 500$, $\windows = 100$.
+We return to the topic of hyperparameter settings below.
+
+To compare, we ran \realsfs using default settings, except allowing it to run for a maximum of \num{500} epochs rather than the default \num{100}.
+We will still take the \num{100} epochs cut-off to mark convergence, if it has not occured by other criteria before then, but results past \num{100} will be shown in places.
+
+In each case, we evaluated the full log-likelihood (\cref{eq:likelihood}) of the estimates after each epoch on both the training and test data sets.
+In addition, we computed various summary statistics from the estimates after each epoch.
+For details, see \cref{sup-text:sfsstatistics}.
+
+\paragraph{One-dimensional SFS}
+
+\begin{figure}
+    {
+        \phantomsubcaption\label{fig:1d-a}
+        \phantomsubcaption\label{fig:1d-b}
+        \phantomsubcaption\label{fig:1d-c}
+        \phantomsubcaption\label{fig:1d-d}
+    }
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/1d}
+    }
+    \end{center}
+    \caption{
+        One-dimensional SFS estimation.
+        \subref{fig:1d-a}:
+            YRI SFS estimates from \realsfs and $\winsfs[100]$ after various epochs.
+            Only variable sites are shown, proportion of fixed sites is shown in the legend.
+            The final \realsfs estimate is overlaid with dots on the \winsfs plot for comparison.
+        %
+        \subref{fig:1d-b}:
+            YRI Tajima's $\theta$ estimates calculated from \realsfs and \winsfs over epochs.
+        %
+        \subref{fig:1d-c}:
+            Maasai Mara SFS estimates from \realsfs and $\winsfs[100]$ after various epochs.
+            Only variable sites are shown, proportion of fixed sites is shown in the legend.
+            The final \realsfs estimate is overlaid with dots on the \winsfs plot for comparison.
+        %
+        \subref{fig:1d-d}:
+            Maasai Mara Tajima's $\theta$ estimates calculated from \realsfs and \winsfs over epochs.
+    }
+    \label{fig:1d}
+\end{figure}
+
+Main results for the one-dimensional estimates are shown in \cref{fig:1d}.
+
+For the human YRI population, we find that a single epoch of $\winsfs[100]$ produces an estimate of the SFS that is visually indistinguishable from the converged estimate of \realsfs at \num{39} epochs (\cref{fig:1d-a}).
+Train and test set log-likelihoods (\cref{sup-fig:yri_loglik}) confirm that the likelihood at this point is only very marginally lower for $\winsfs[100]$ than the last \realsfs.
+By increasing the window size to \num{250} or \num{500}, we get test log-likelihood values equal to or above those achieved by \realsfs, and still within the first \num{5} epochs.
+
+As an example of a summary statistic derived from the one-dimensional SFS, \cref{fig:1d-b} shows that $\winsfs[100]$ finds an estimate of Tajima's $\theta$ that is very near to the final \realsfs, with a difference on the order of \scinum{1e-6}.
+Increasing the window size removes this difference at the cost of a few more epochs.
+
+In the case of Maasai Mara, \realsfs runs for the \num{500} epochs, so we take epoch \num{100} to mark convergence.
+On this data, $\winsfs[100]$ requires two epochs to give a good estimate of the SFS, as shown in \cref{fig:1d-c}.
+Some subtle differences relative to the \realsfs results remain, however, especially at the middle frequencies:
+the \realsfs estimate exhibits a \enquote{wobble} such that even bins are consistently higher than odd bins.
+Such a pattern is not biologically plausible, and is not seen in the \winsfs spectrum.
+
+\Cref{sup-fig:masaimara_loglik} shows train and test log-likelihood data for Maasai Mara, which again support the conclusions drawn from looking at the estimates themselves.
+In theory, we expect that the test log-likelihood should be adversely impacted by the \realsfs \enquote{wobble} pattern.
+In practice, however, with more than \SI{99.5}{\percent} fixed sites, the fixed end of the spectrum dominate the likelihood to the extent that the effect is not visible.
+We return to this point below.
+
+Finally, \Cref{fig:1d-d} shows that Tajima's $\theta$ is likewise well-estimated by one or two epochs of $\winsfs[100]$ on the impala data.
+
+\paragraph{Two-dimensional SFS}
+
+\begin{figure}
+    {
+        \phantomsubcaption\label{fig:2d-a}
+        \phantomsubcaption\label{fig:2d-b}
+        \phantomsubcaption\label{fig:2d-c}
+        \phantomsubcaption\label{fig:2d-d}
+        \phantomsubcaption\label{fig:2d-e}
+        \phantomsubcaption\label{fig:2d-f}
+        \phantomsubcaption\label{fig:2d-g}
+        \phantomsubcaption\label{fig:2d-h}
+    }
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/2d}
+    }
+    \end{center}
+    \caption{
+        Two-dimensional SFS estimation.
+        \subref{fig:2d-a}:
+            CEU/YRI SFS estimates from \realsfs after \num{93} epochs (converged) and from $\winsfs[100]$ after a single epoch.
+            Fixed sites not shown for scale, total proportion indicated by arrows.
+        %
+        \subref{fig:2d-b}, \subref{fig:2d-c}:
+            CEU/YRI SFS train and test log-likelihood over epochs for \realsfs and \winsfs.
+        %
+        \subref{fig:2d-d}:
+            CEU/YRI Hudson's $\fst$ estimates calculated from \realsfs and \winsfs over epochs
+        %
+        \subref{fig:2d-e}:
+            Shangani/Maasai Mara SFS estimates from \realsfs after \num{100} epochs (converged) and from $\winsfs[100]$ after a single epoch.
+            Fixed reference sites not shown for scale, proportions indicated by arrows.
+        %
+        \subref{fig:2d-f}, \subref{fig:2d-g}:
+            Shangani/Maasai Mara SFS train and test log-likelihood over epochs for \realsfs and \winsfs.
+        %
+        \subref{fig:2d-h}:
+            Shangani/Maasai Mara Hudson's $\fst$ estimates calculated from \realsfs and \winsfs over epochs.
+    }
+    \label{fig:2d}
+\end{figure}
+
+Overall results for the joint spectra are seen in \cref{fig:2d}.
+
+On the human data, $\winsfs[100]$ takes a single epoch for an estimate of the SFS that is near-identical to \realsfs at convergence after \num{93} epochs.
+Looking at the log-likelihood results, it is notable that while \realsfs does better than \winsfs when evaluated on the training data (\cref{fig:2d-b}), the picture is reversed when evaluated on the test data (\cref{fig:2d-c}).
+In fact, all \winsfs hyperparameter settings achieved better test log-likelihood values in the first \num{10} epochs than achieved by \realsfs at convergence.
+This is likely caused by a faint \enquote{checkerboard} pattern in the \realsfs estimate due to overfitting, as we expect the spectrum to be smooth.
+We note that both \realsfs and \winsfs preserve an excess of sites where all individuals are heterozygous, corresponding to the peak in the centre of the spectrum.
+This is a known issue with this data set \cite{Meisner2019}, likely caused by paralogs in the mapping process.
+It is an artefact which can be removed by filtering the data before SAF calculation, which we have not done here.
+Given this choice, it is to be expected that this peak remains.
+
+In two dimensions, we compute both Hudson's $\fst$ (\cref{fig:2d-d}) and the $f_2$-statistic (\cref{sup-fig:f2}) from SFS estimates after all epochs, and we note similar patterns for these as we have seen before:
+one epoch of $\winsfs[100]$ gives an estimate of the summary statistic that is almost identical to the final \realsfs estimate.
+
+For the impalas, $\winsfs[100]$ requires two epochs for a good estimate of the spectrum, while \realsfs again does not report convergence within the first \num{100}.
+What is immediately striking about the impala results, however, is that the checkerboard pattern is very pronounced for \realsfs, and again absent for \winsfs (\cref{fig:2d-e}).
+The problem for \realsfs is likely exacerbated by two factors:
+first, the sequencing depth is lower, increasing the uncertainty;
+second, the relatively high divergence of the impala populations push most of the mass in the spectrum towards the edges.
+Together, this means that very little information is available for most of the estimated parameters. 
+It appears that \realsfs therefore ends up overfitting to the particularities of the training data at these bins.
+
+This is also reflected in the difference between train and test log-likelihood (\cref{fig:2d-f,fig:2d-g}). 
+Like in the case of the human data, the SFS estimated by \winsfs performs better on the test data compared to \realsfs, while \realsfs performs the based on the training data.
+On the test data, all \winsfs settings again reach log-likelihood values comparable to or better than \realsfs in few epochs.
+However, the differences between \realsfs and \winsfs remain relatively small in terms of log-likelihood, even on the test set.
+This is somewhat surprising, given the marked checkerboarding in the spectrum itself.
+Again, we attribute this to the fact that the log-likelihood is dominated by all the mass lying in or around the zero-zero bin.
+We expect, therefore, that methods that rely on the \enquote{interior} of the SFS should do better when using \winsfs, compared to \realsfs.
+
+Before turning to test this prediction, we briefly note that $\fst$ (\cref{fig:2d-h}) and the $f_2$-statistic (\cref{sup-fig:f2}) are also adequately estimated for the impalas by $\winsfs[100]$ in one epoch.
+
+\paragraph{Demographic inference}
+
+\begin{figure}
+    {
+        \phantomsubcaption\label{fig:dadi-a}
+        \phantomsubcaption\label{fig:dadi-b}
+        \phantomsubcaption\label{fig:dadi-c}
+        \phantomsubcaption\label{fig:dadi-d}
+        \phantomsubcaption\label{fig:dadi-e}
+        \phantomsubcaption\label{fig:dadi-f}
+    }
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/dadi}
+    }
+    \end{center}
+    \caption{
+        Demographic inference results.
+        Each row corresponds to a demographic model fitted using $\dadi$.
+        On the left, a schematic of the model is shown including parameter estimates using SFS estimates from \realsfs after \num{100} epochs or from $\winsfs[100]$ after two epochs.
+        Time is given in years, population sizes in number of individuals, and migration rates is per chromosome per generation. All parameters were scaled assuming a mutation rate of \scinum{1.41e-8} per site per generation and a generation time of \num{5.7} years.
+        On the right, the residuals of the SFS fitted by $\dadi$.
+        Note that $\dadi$ folds the input SFS, hence the residuals are likewise folded.
+        The fixed category is omitted to avoid distorting the scale.
+        \subref{fig:dadi-a}, \subref{fig:dadi-b}:
+            Model with symmetric migration and constant population size.
+        %
+        \subref{fig:dadi-c}, \subref{fig:dadi-d}:
+            Model with asymmetric migration and constant population size.
+        %
+        \subref{fig:dadi-e}, \subref{fig:dadi-f}:
+            Model with asymmetric migration and a single, instantaneous population size change.
+    }
+    \label{fig:dadi}
+\end{figure}
+
+All the SFS-derived summary statistics considered so far are heavily influenced by the bins with the fixed allele bins (that is, count $0$ or $2N_k$ in all populations), or they are sums of alternating frequency bins.
+In either case, this serves to mask issues with checkerboard areas of the SFS in the lower-frequency bins.
+However, this will not be the case for downstream methods that rely on the shape of the spectrum in more detail.
+
+To illustrate, we present a small case-study of inferring the demographic history of the impala populations using the $\dadi$ \cite{Gutenkunst2009} software with the estimated impala spectra shown in \cref{fig:2d-e}, though folded due to the lack of an outgroup for proper polarisation.
+Briefly, based on an estimated SFS and a user-specified demographic model, $\dadi$ fits a model SFS based on the demographic parameters so as to maximise the likelihood of these parameters.
+Our approach was to fit a simple demographic model for the Shangani and Maasai Mara populations, and then gradually add parameters to the model as required based on the residuals of the input and model spectra.
+We take this to be representative of a typical workflow for demographic inference.
+
+For each successive demographic model \cite{Portik2017}, we ran $\dadi$ on the folded spectra by performing \num{100} independent optimisation runs from random starting parameters, and checking for convergence by requiring the top three results to be within five likelihoods units of each other.
+If the optimisation did not converge, we did additional optimisation runs until either they converged or \num{500} independent runs were reached without likelihood convergence.
+In that case, we inspected the results for the top runs, to assess whether they were reliably reaching similar estimates and likelihoods.
+Results are shown in \cref{fig:dadi}.
+
+The first, basic model assumes that the populations have had constant populations sizes and a symmetric migration rate since diverging.
+The parameter estimates based on \realsfs and \winsfs are similar, though the \winsfs model fit has significantly higher log-likelihood (\cref{fig:dadi-a}).
+However, when inspecting the residuals in \cref{fig:dadi-b}, the \realsfs residuals suffer from a heavy checkerboard pattern, making it hard to distinguish noise from model misspecification.
+In contrast, the \winsfs residuals clearly show areas of the spectrum where the model poorly fits the data.
+
+In particular, the residuals along the very edge of the spectrum suggest that a symmetric migration rate is not appropriate.
+Therefore, we fit a second model with asymmetric migration (\cref{fig:dadi-c})
+Now $\dadi$ finds migration rates from Shangani to Maasai Mara an order of magnitude higher than \emph{vice versa}.
+The results for \winsfs (\cref{fig:dadi-d}) show improved residuals, while the \realsfs residuals remain hard to interpret.
+
+Finally, an area of positive residuals in the fixed and rare-variant end of the Shangani spectrum suggests that this population has recently undergone a significant bottleneck.
+Therefore, the third model allows for an instantaneous size change in each of the impala populations (\cref{fig:dadi-e}).
+At this point, the \winsfs residuals (\cref{fig:dadi-f}) are negligible, suggesting that no more parameters should be added to the model.
+Once again, though, the \realsfs residuals leave us uncertain whether further model extensions are required.
+
+When looking at the final model fits, the $\dadi$ parameter estimates from \realsfs and \winsfs also start to differ slightly.
+In several instances, estimates disagree by about \SI{50}{\percent}, and the log-likelihood remains much higher for \winsfs, with a difference of  \num{45000} log-likelihood units to \realsfs.
+In addition, we confirmed that the log-likelihood of the original test data set given the SFS fitted by $\dadi$ is higher for \winsfs ($-8.08 \cdot 10^8$) than for \realsfs ($-8.38 \cdot 10^8$).
+We stress, however, that we would have likely never found the appropriate model without using \winsfs, since the interpretation of the \realsfs results is difficult.
+In relation to this point, we note that the final model results in considerably different estimates for parameters of biological interest, such as split times and recent population sizes, relative to the initial model.
+We also find that the last model is supported by the literature:
+previous genetic and fossil evidence suggests extant common impala populations derive from a refugia in Southern Africa that subsequently colonised East Africa in the middle-to-late Pleistocene \cite{Lorenzen2006, Lorenzen2012, Faith2013}.
+This is broadly consistent with the estimated split time, and the reduction in population size in East African populations as they colonised the new habitat. The difference in effective population size between the southern Shangani population and the eastern Maasai Mara was previously also found using microsatellite data \cite{Lorenzen2006}.
+
+\paragraph{Simulations}
+
+\begin{figure}
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/sim_loglik}
+    }
+    \end{center}
+    \caption{
+        Log-likelihood over epochs of the true observed SFS given the two-dimensional SFS estimated by \winsfs ($\windows \in \set{100, 250, 500}$) and \realsfs.
+        Different simulated scenarios (mean depth \num{2}, \num{4}, or \num{8}; sample size \num{5}, \num{10}, or \num{20}) shown.
+        For each method, the epoch at which the default stopping criterion is triggered is shown.        
+        Note that the $y$-scale varies across sample sizes and depths in order to show the full range of data (main plot) and the difference between \realsfs and \winsfs (zoom plot).
+        For each column of plots, corresponding to a simulated sample size, the $y$-scale in the zoom plot is held constant to allow for comparison across depths.
+    }
+    \label{fig:sim_loglik}
+\end{figure}
+
+To validate these findings in conditions with a known SFS, we ran simulations using \texttt{msprime} \cite{Baumdicker2021} and \texttt{tskit} \cite{Kelleher2018}.
+Briefly, we simulated two populations, which we simply refer to as A and B.
+Populations A and B diverged \num{10000} generations ago and both have effective populations sizes of \num{10000} individuals, except for a period of \num{1000} generations after the split, during which time B went through a bottleneck of size \num{1000}.
+We simulated \num{22} independent chromosomes of \SI{10}{\mega\bases} for a total genome size of \SI{220}{\mega\bases}, using a mutation rate of \scinum{2.5e-8} and a uniform recombination rate of \scinum{1e-8}.
+To explore the consequences of varying sample sizes, we sampled \num{5}, \num{10}, or \num{20} individuals from the two populations.
+For each of these three scenarios, we calculated the true SFS from the resulting genotypes (shown in \cref{sup-fig:sim_truth}).
+
+Using the true genotypes as input, we simulated the effects of NGS sequencing with error for both the variable and invariable sites.
+At every position in the genome, including the monomorphic sites, we sample $D \sim \text{Poisson}(\lambda)$ bases and introduce errors with a constant rate of $\varepsilon = 0.002$ independently for each base.
+We calculate genotype likelihoods according to the GATK model outlined in \cref{eq:gl1,eq:gl2,eq:gl3} and output GLF files.
+Using these, we create SAF files for A and B with no further filtering using \angsd.
+The mean depth $\lambda$ is set to either \num{2}, \num{4}, or \num{8} to investigate the performance of \winsfs at difference sequencing depths.
+This results in a grid of $3 \times 3$ simulated NGS data sets with three different sample sizes and three different mean depth values.
+
+From the simulated SAF files, we ran \winsfs and \realsfs as above to generate the two-dimensional SFS, except for a maximum of \num{100} epochs.
+For each method and each epoch $e$ until convergence, we calculated the log-likelihood for the corresponding SFS $\estsfs[e]$,
+%
+\begin{align}
+    \log \prob(\sfs \given \estsfs[e]) 
+    &= \log \prod_{j \in \ctset} \sfs_j^{M \estsfs[e]_j} \nonumber \\
+    &= \sum_{j \in \ctset} M \estsfs[e]_j \log \sfs_j
+\end{align}
+%
+where $\sfs$ is the observed true SFS and $M$ is the total number of sites.
+\Cref{fig:sim_loglik} shows how the log-likelihood evolves over epochs for \winsfs ($\windows \in \set{100, 250, 500}$) and \realsfs for sample sizes $N_k \in \set{5, 10, 20}$ and simulated mean depths $\lambda \in \set{2, 4, 8}$.
+We observe that at a mean depth of \num{2}, $\winsfs[100]$ outperforms \realsfs by a significant margin both in terms of speed and the final log-likelihood.
+At mean depth \num{4}, the \winsfs remains much faster and still achieves meaningfully better log-likelihoods, especially at higher sample sizes.
+Finally, at mean depth \num{8}, $\winsfs[100]$ still converges \numrange{5}{10} times faster than \realsfs (measured in epochs), but the methods provide estimates of similar quality.
+
+The estimated spectra for \realsfs and $\winsfs[100]$ at their default stopping points are shown in \cref{sup-fig:sim_realsfs} and \cref{sup-fig:sim_winsfs} and respectively.
+These confirm that the spectra on the whole are well-estimated by $\winsfs[100]$ as compared to the true SFS (\cref{sup-fig:sim_truth}).
+Moreover, we again observe that \realsfs introduces a checkerboard pattern in the low-information part of the spectrum at \SIrange{2}{4}{\depth}, which is not present in the true spectrum, and which is not inferred by \winsfs.
+The pattern is more pronounced at higher sample sizes.
+This supports the hypothesis that \realsfs tends to overfit in situations where many parameters must be inferred with little information.
+
+\paragraph{Peak simulations}
+
+The averaging of block estimates in the window EM algorithm appears to induce a certain \enquote{smoothing} of the spectrum at low depth.
+This smoothing effect is implicit in the sense of being nowhere explicitly modelled, and each parameter is estimated independently.
+Nevertheless, this observation may give rise to a concern that \winsfs, unlike the maximum likelihood estimate from \realsfs, might remove true abrupt peaks in the SFS.
+
+To investigate, we modified the demographic simulation with sample size \num{20} described above in the following way.
+In each of seven arbitrarily chosen bins near to the centre of the SFS, we artificially spiked \num{10000} counts into the true spectrum after running the demographic simulations (\cref{sup-fig:peak_truth}).
+This represents a \numrange{30}{40}-fold increase relative to the original count and the neighbouring cells.
+Based on this altered spectrum, we simulated sequencing data for depth \SI{2}{\depth}, \SI{4}{\depth}, and \SI{8}{\depth}, created SAF files, and ran \realsfs and $\winsfs[100]$ as before.
+The residuals of the \realsfs and \winsfs estimates are shown in \cref{sup-fig:peak_realsfs} and \cref{sup-fig:peak_winsfs}, respectively.
+In this fairly extreme scenario, the spectra inferred by both \winsfs and \realsfs appear to have a small but noticeable downwards bias in the peak region at \SI{2}{\depth} and \SI{4}{\depth}.
+However, compared to \realsfs, \winsfs has smaller residuals in all scenarios, and the apparent bias is inversely correlated with depth.
+These results confirm that usage the window EM algorithm does not lead to excess flattening of SFS peaks compared with the maximum likelihood estimate from the standard EM algorithm.
+
+\paragraph{Hyperparameters}
+
+The window EM algorithm requires hyperparameter settings for $\blocks$ and $\windows$.
+Moreover, it requires a choice of stopping criterion.
+For ease of use, the \winsfs software ships with defaults for these settings, and we briefly describe these.
+
+We expect that the choice of $\blocks$ is less important than the term $\windows / \blocks$, which governs the fraction of data that is directly considered in any one update step.
+Having analysed input data varying in size from \SI{220}{\mega\bases} (simulations) to \SI{1.17}{\giga\bases} (human data), we find that fixing $\blocks = 500$ works fine as a default across a wide range of input sizes.
+Therefore, the more interesting question is how to set the window size.
+In theory, there should be a trade-off between speed of convergence and accuracy of results, where lower window size favours the former and higher window size the latter.
+However, in practice, based on our results, we have not seen evidence that using $\windows = 500$ over $\windows = 100$ leads to significantly better inference.
+On the other hand, the lower window size has significantly faster convergence.
+Based on this, we feel that window size of $100$ makes for the best general default.
+By default, the \winsfs software uses $\blocks = 500$ blocks and a window size $\windows = 100$.
+
+As for stopping, \winsfs implements the criterion based differences $\delta$ in $L'_{e}$ (\cref{eq:windowstop}) over successive epochs.
+Based on the initial analysis of the human and impala data, we chose $\delta = 10^{-4}$ (see \cref{sup-fig:stop}) as the default value and used the simulations to validate this choice.
+\Cref{fig:sim_loglik} shows the point at which stopping occurs, which is generally around the maximum log-likelihood as desired.
+
+\paragraph{Streaming}
+
+In the main usage mode, pre-calculated SAF likelihoods are read into RAM, as in \realsfs.
+However, it is also possible to run \winsfs while keeping the data on disk and streaming through the intersecting sites in the SAF files.
+We refer to this as \enquote{streaming mode}.
+
+Since the window EM algorithm requires randomly shuffling the input data, a preparation step is required in which SAF likelihoods are (jointly) shuffled into a new file.
+We wish to avoid loading the data into RAM in order to perform a shuffle, and we also do not want multiple intermediate writes to disk.
+To our knowledge, it is not possible to perform a true shuffle of the input data within these constraints.
+Instead, since we are only interested in shuffling for the purposes of breaking up blocks of LD, we perform a pseudo-shuffle according to the following scheme.
+We pre-allocate a file with space for exactly $M$ intersecting sites in the input data.
+This file is then split into $S$ contiguous sections of roughly equal size, and we then assign input site with index $m \in \set{1, \dots, M}$ to position $\lfloor (m + 1) / S \rfloor + 1$ in section $(m + 1) \mathbin{\%} S + 1$, where $\mathbin{\%}$ is the remainder operation.
+That is, the first $S$ sites in the input end up in the first positions of each section, and the next $S$ sites in the input end up in the second positions of each section, and so on.
+This operation can be performed with constant memory, without intermediate writes to disk, and has the benefit of being reversible.
+
+After preparing the pseudo-shuffled file, \winsfs can be run exactly as in the main mode.
+To confirm that this pseudo-shuffle is sufficient for the purposes of the window EM algorithm, we ran \num{10} epochs of \winsfs in streaming mode for the impala and human data sets in both one and two dimensions.
+After each epoch, we calculated the log-likelihood of the resulting SFS and compared them to the log-likelihood obtained by running in main mode above.
+The results are shown in \cref{sup-fig:stream} and show that streaming mode yields comparable results to the main, in-RAM usage:
+the likelihood differs slightly, but is neither systematically better or worse.
+
+\paragraph{Benchmark}
+
+\begin{figure}
+    {
+        \phantomsubcaption\label{fig:bench-a}
+        \phantomsubcaption\label{fig:bench-b}
+    }
+    \begin{center}
+    \makebox[0.8\textwidth]{
+        \includegraphics[width=0.8\paperwidth]{figures/bench_impala}
+    }
+    \end{center}
+    \caption{
+        Computational resource usage of \winsfs and \realsfs for the joint estimation of the Shangani and Maasai Mara impala populations
+        \winsfs can be run while loading input data into RAM, or streaming through it on disk.
+        In the latter case, data must be shuffled on disk before hand.
+        \subref{fig:bench-a}:
+            Runtime required with \num{20} threads for various numbers of epochs.
+            Results for \winsfs are shown for in-memory usage and streaming mode.
+            For streaming modes, times are given with and without the extra time taken to shuffle data on disk before running.
+        \subref{fig:bench-b}:
+            Peak memory usage (maximum resident set size).
+    }
+    \label{fig:bench}
+\end{figure}
+
+To assess its performance characteristics, we benchmarked \winsfs in both the main mode and streaming mode as well as \realsfs on the impala data.
+For each of the three, we ran estimation until convergence, as well as until various epochs before then, collecting benchmark results using Snakemake \cite{Koster2012}.
+Both \realsfs and \winsfs were given \num{20} cores.
+Results are shown in \cref{fig:bench}.
+In terms of run-time, we find that running \winsfs in RAM is significantly faster than \realsfs (\cref{fig:bench-a}).
+This is true in part because \winsfs requires fewer epochs, but also since \winsfs runs faster than \realsfs epoch-by-epoch.
+As expected, when switching \winsfs to streaming mode, run-time suffers as epochs increase.
+However, taking the number of epochs required for convergence into account, streaming \winsfs remains competitive with \realsfs, even when including the initial overhead to shuffle SAF likelihoods on disk.
+
+Looking at memory consumption, streaming \winsfs has a trivial peak memory usage of \SI{10}{\mega\byte}, including the initial pseudo-shuffle.
+In comparison, when reading data into RAM, \realsfs  and \winsfs require \SI{137}{\giga\byte} and \SI{107}{\giga\byte}, respectively, even on the fairly small impala data set.
+
+The benchmarking results for the one-dimensional Maasai Mara estimation are shown in \cref{sup-fig:bench_masaimara} and support similar conclusions.
